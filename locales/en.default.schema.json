@@ -111,7 +111,17 @@
     "headline": "Headline",
     "body": "Review",
     "padding_top": "Top padding",
-    "fallback_collection": "Fallback collection"
+    "fallback_collection": "Fallback collection",
+    "pill_collections": "Sub-collection pills",
+    "products_per_page": "Products per page",
+    "collections": "Collections",
+    "options": "Options",
+    "sizes": "Sizes",
+    "label_prefix": "Filter chip prefix",
+    "colors": "Colors",
+    "price_min": "Minimum price",
+    "price_max": "Maximum price",
+    "position": "Position in grid"
   },
   "options": {
     "alignment": {
@@ -184,6 +194,9 @@
     },
     "related_products": {
       "name": "Related products"
+    },
+    "collection_banner": {
+      "name": "Collection banner"
     }
   },
   "blocks": {
@@ -193,7 +206,14 @@
     "tab": "Collection tab",
     "perk": "Perk",
     "collapsible": "Collapsible row",
-    "review": "Review"
+    "review": "Review",
+    "filter_category": "Category filter",
+    "filter_checklist": "Checklist filter",
+    "filter_size": "Size filter",
+    "filter_color": "Color filter",
+    "filter_price": "Price filter",
+    "filter_toggles": "Toggle filter",
+    "promo": "Promo tile"
   },
   "headers": {
     "featured_product": "Featured product",
@@ -213,6 +233,11 @@
     "hidden_tags": "Comma-separated tags left out of the tag line under the title.",
     "rating_distribution": "Review counts per star level. The breakdown hides when every count is 0.",
     "fit_note": "Leave blank to hide the fit meter.",
-    "fallback_collection": "Fills the row when Shopify returns fewer recommendations than the number of products to show."
+    "fallback_collection": "Fills the row when Shopify returns fewer recommendations than the number of products to show.",
+    "banner_image": "Used when the collection has no image of its own.",
+    "static_filters": "Filter blocks are for display only and don't filter products yet.",
+    "comma_separated": "Separate values with commas.",
+    "color_pairs": "Comma-separated Name:#hex pairs, for example Black:#151313.",
+    "promo_position": "Shows on the first page before this product. Spans two columns."
   }
 }

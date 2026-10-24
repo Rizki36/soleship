@@ -29,7 +29,24 @@
   },
   "collections": {
     "title": "Collections",
-    "empty": "No products in this collection yet."
+    "empty": "No products in this collection yet.",
+    "listing": {
+      "hide_filters": "Hide filters",
+      "show_filters": "Show filters",
+      "filters": "Filters",
+      "close_filters": "Close filters",
+      "count": "Showing {{ shown }} of {{ total }} products",
+      "active_filters": "Active filters",
+      "remove_filter": "Remove filter: {{ label }}",
+      "clear_all": "Clear all",
+      "sort_by": "Sort by:",
+      "apply": "Apply",
+      "view": "Product layout",
+      "view_grid": "Grid view",
+      "view_rows": "Large view",
+      "progress": "You've viewed {{ shown }} of {{ total }} products",
+      "load_more": "Load more products"
+    }
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",

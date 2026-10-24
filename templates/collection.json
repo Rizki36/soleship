@@ -9,12 +9,129 @@
  */
 {
   "sections": {
+    "banner": {
+      "type": "collection-banner",
+      "settings": {
+        "image": "shopify://shop_images/soleship-hero.jpg",
+        "all_label": "All products",
+        "all_collection": "all",
+        "collections": [
+          "urban-tactical",
+          "outdoor-hiking",
+          "work-duty",
+          "everyday-performance",
+          "new-arrivals"
+        ],
+        "background": "#7E1B1F"
+      }
+    },
     "main": {
       "type": "collection",
-      "settings": {}
+      "blocks": {
+        "category": {
+          "type": "category",
+          "settings": {
+            "title": "Category",
+            "collections": [
+              "urban-tactical",
+              "outdoor-hiking",
+              "work-duty",
+              "everyday-performance"
+            ],
+            "open": true
+          }
+        },
+        "size": {
+          "type": "size",
+          "settings": {
+            "title": "Size (EU)",
+            "sizes": "40, 41, 42, 43, 44, 45",
+            "label_prefix": "EU",
+            "open": true
+          }
+        },
+        "color": {
+          "type": "color",
+          "settings": {
+            "title": "Color",
+            "colors": "Black:#151313, Brown:#8A6A54, Olive:#4A4F45, Graphite:#6B6E73, Bone:#E8DCD8, Tan:#C9A27A",
+            "open": true
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "title": "Price",
+            "price_min": 1000000,
+            "price_max": 2500000,
+            "open": true
+          }
+        },
+        "features": {
+          "type": "toggles",
+          "settings": {
+            "title": "Features",
+            "options": "Waterproof, Slip-resistant, Composite toe, Side zip",
+            "open": true
+          }
+        },
+        "cut_height": {
+          "type": "checklist",
+          "settings": {
+            "title": "Cut height",
+            "options": "Low-cut, Mid-cut, High-top",
+            "open": false
+          }
+        },
+        "rating": {
+          "type": "checklist",
+          "settings": {
+            "title": "Rating",
+            "options": "4 stars & up, 3 stars & up",
+            "open": false
+          }
+        },
+        "promo": {
+          "type": "promo",
+          "settings": {
+            "image": "shopify://shop_images/soleship-promo-summit.jpg",
+            "eyebrow": "Limited drop",
+            "title": "The Summit Red edition",
+            "text": "Grey suede, signal-red laces, Vibram-grade grip. Only 500 pairs.",
+            "button_label": "Shop the drop",
+            "button_link": "shopify://collections/new-arrivals",
+            "position": 7,
+            "background": "#7E1B1F"
+          }
+        }
+      },
+      "block_order": [
+        "category",
+        "size",
+        "color",
+        "price",
+        "features",
+        "cut_height",
+        "rating",
+        "promo"
+      ],
+      "settings": {
+        "products_per_page": 12
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "Join the Soleship crew",
+        "text": "Get 10% off your first pair, early drops, and field-tested gear guides.",
+        "background": "#7E1B1F",
+        "padding_top": 0
+      }
     }
   },
   "order": [
-    "main"
+    "banner",
+    "main",
+    "newsletter"
   ]
 }

@@ -1,47 +1,1418 @@
-{% comment %}
-  This section is used in the collection template to render collection page
-  listing all products within a collection.
+{%- liquid
+  assign promo = section.blocks | where: 'type', 'promo' | first
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign remove_filter_label = 'collections.listing.remove_filter' | t: label: '[label]'
+-%}
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
-{% endcomment %}
+<collection-listing class="collection" data-section-id="{{ section.id }}">
+  {%- paginate collection.products by section.settings.products_per_page -%}
+    {%- liquid
+      assign total = paginate.items
+      assign shown = paginate.current_offset | plus: collection.products.size
+      assign progress = 0
+      if total > 0
+        assign progress = shown | times: 100 | divided_by: total
+      endif
+    -%}
 
-<h1>{{ collection.title }}</h1>
+    <div class="collection__toolbar">
+      <div class="collection__toolbar-start">
+        <button
+          type="button"
+          class="collection__filter-toggle"
+          aria-expanded="true"
+          aria-controls="CollectionFilters-{{ section.id }}"
+          data-filter-toggle
+          data-hide-text="{{ 'collections.listing.hide_filters' | t }}"
+          data-show-text="{{ 'collections.listing.show_filters' | t }}"
+        >
+          {%- render 'icon', name: 'sliders-horizontal' -%}
+          <span data-filter-toggle-label>{{ 'collections.listing.hide_filters' | t }}</span>
+        </button>
 
-<div class="collection-products">
-  {% paginate collection.products by 20 %}
-    {% for product in collection.products %}
-      <div class="collection-product">
-        {% if product.featured_image %}
-          {% render 'image',
-            class: 'collection-product__image',
-            image: product.featured_image,
-            url: product.url,
-            width: 400,
-            height: 400,
-            crop: 'center'
-          %}
-        {% endif %}
-        <div class="collection-product__content">
-          <p>{{ product.title | escape | link_to: product.url }}</p>
-          <p>{{ product.price | money }}</p>
+        <p class="collection__count" role="status" data-count>
+          {{- 'collections.listing.count' | t: shown: shown, total: total -}}
+        </p>
+
+        <div class="collection__chips" data-chips hidden>
+          <ul class="collection__chip-list" role="list" aria-label="{{ 'collections.listing.active_filters' | t }}" data-chip-list></ul>
+          <button type="button" class="collection__clear" data-clear-all>{{ 'collections.listing.clear_all' | t }}</button>
+        </div>
+
+        <template data-chip-template>
+          <li>
+            <button type="button" class="collection__chip" data-chip>
+              <span data-chip-label></span>
+              {%- render 'icon', name: 'close' -%}
+            </button>
+          </li>
+        </template>
+      </div>
+
+      <div class="collection__toolbar-end">
+        <form class="collection__sort" action="{{ collection.url }}" method="get">
+          <label class="collection__sort-label" for="SortBy-{{ section.id }}">{{ 'collections.listing.sort_by' | t }}</label>
+          <select id="SortBy-{{ section.id }}" class="collection__sort-select" name="sort_by" data-sort>
+            {%- for option in collection.sort_options -%}
+              <option value="{{ option.value | escape }}" {% if option.value == sort_by %}selected{% endif %}>
+                {{- option.name | escape -}}
+              </option>
+            {%- endfor -%}
+          </select>
+          {%- render 'icon', name: 'chevron-down' -%}
+          <noscript><button type="submit" class="collection__sort-submit">{{ 'collections.listing.apply' | t }}</button></noscript>
+        </form>
+
+        <div class="collection__view" role="group" aria-label="{{ 'collections.listing.view' | t }}">
+          <button
+            type="button"
+            class="collection__view-button"
+            aria-pressed="true"
+            aria-label="{{ 'collections.listing.view_grid' | t }}"
+            data-view-button="grid"
+          >
+            {%- render 'icon', name: 'layout-grid' -%}
+          </button>
+          <button
+            type="button"
+            class="collection__view-button"
+            aria-pressed="false"
+            aria-label="{{ 'collections.listing.view_rows' | t }}"
+            data-view-button="rows"
+          >
+            {%- render 'icon', name: 'rows-3' -%}
+          </button>
         </div>
       </div>
-    {% endfor %}
+    </div>
 
-    {{ paginate | default_pagination }}
-  {% endpaginate %}
-</div>
+    <div class="collection__layout">
+      <aside
+        id="CollectionFilters-{{ section.id }}"
+        class="collection__filters"
+        aria-label="{{ 'collections.listing.filters' | t }}"
+        data-remove-label="{{ remove_filter_label | escape }}"
+      >
+        <div class="collection__filters-header">
+          <h2 class="collection__filters-title">{{ 'collections.listing.filters' | t }}</h2>
+          <button
+            type="button"
+            class="collection__filters-close"
+            aria-label="{{ 'collections.listing.close_filters' | t }}"
+            data-filters-close
+          >
+            {%- render 'icon', name: 'close' -%}
+          </button>
+        </div>
+
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'promo' -%}
+            {%- continue -%}
+          {%- endif -%}
+
+          <details class="collection__filter" {% if block.settings.open %}open{% endif %} {{ block.shopify_attributes }}>
+            <summary class="collection__filter-header">
+              <span>{{ block.settings.title | escape }}</span>
+              {%- render 'icon', name: 'chevron-down' -%}
+            </summary>
+
+            <div class="collection__filter-body">
+              {%- case block.type -%}
+                {%- when 'category' -%}
+                  <ul class="collection__options" role="list">
+                    {%- for category in block.settings.collections -%}
+                      {%- liquid
+                        assign is_current = false
+                        if category.handle == collection.handle
+                          assign is_current = true
+                        endif
+                      -%}
+                      <li>
+                        <a
+                          class="collection__option"
+                          href="{{ category.url }}"
+                          {% if is_current %}
+                            aria-current="page"
+                          {% endif %}
+                        >
+                          <span class="collection__checkbox{% if is_current %} collection__checkbox--checked{% endif %}" aria-hidden="true"></span>
+                          <span class="collection__option-label">{{ category.title | escape }}</span>
+                          <span class="collection__option-count">{{ category.products_count }}</span>
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+
+                {%- when 'checklist' -%}
+                  {%- assign options = block.settings.options | split: ',' -%}
+                  <ul class="collection__options" role="list">
+                    {%- for option in options -%}
+                      {%- assign option_label = option | strip -%}
+                      <li>
+                        <label class="collection__option">
+                          <input
+                            type="checkbox"
+                            class="collection__checkbox"
+                            data-filter-control
+                            data-label="{{ option_label | escape }}"
+                          >
+                          <span class="collection__option-label">{{ option_label | escape }}</span>
+                        </label>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+
+                {%- when 'size' -%}
+                  {%- assign sizes = block.settings.sizes | split: ',' -%}
+                  <div class="collection__sizes">
+                    {%- for size in sizes -%}
+                      {%- liquid
+                        assign size_label = size | strip
+                        assign chip_label = block.settings.label_prefix | append: ' ' | append: size_label | strip
+                      -%}
+                      <button
+                        type="button"
+                        class="collection__size"
+                        aria-pressed="false"
+                        aria-label="{{ chip_label | escape }}"
+                        data-filter-control
+                        data-label="{{ chip_label | escape }}"
+                      >
+                        {{- size_label | escape -}}
+                      </button>
+                    {%- endfor -%}
+                  </div>
+
+                {%- when 'color' -%}
+                  {%- assign colors = block.settings.colors | split: ',' -%}
+                  <div class="collection__swatches">
+                    {%- for color in colors -%}
+                      {%- liquid
+                        assign color_parts = color | split: ':'
+                        assign color_name = color_parts.first | strip
+                        assign color_value = color_parts.last | strip
+                      -%}
+                      <button
+                        type="button"
+                        class="collection__swatch"
+                        style="--swatch: {{ color_value | escape }};"
+                        aria-pressed="false"
+                        aria-label="{{ color_name | escape }}"
+                        title="{{ color_name | escape }}"
+                        data-filter-control
+                        data-label="{{ color_name | escape }}"
+                      ></button>
+                    {%- endfor -%}
+                  </div>
+
+                {%- when 'price' -%}
+                  {%- liquid
+                    assign price_min = block.settings.price_min | times: 100 | money_without_trailing_zeros
+                    assign price_max = block.settings.price_max | times: 100 | money_without_trailing_zeros
+                  -%}
+                  <div class="collection__range" aria-hidden="true">
+                    <span class="collection__range-active"></span>
+                    <span class="collection__range-handle collection__range-handle--min"></span>
+                    <span class="collection__range-handle collection__range-handle--max"></span>
+                  </div>
+                  <div class="collection__price-inputs">
+                    <span class="collection__price-value">{{ price_min }}</span>
+                    <span class="collection__price-dash" aria-hidden="true">–</span>
+                    <span class="collection__price-value">{{ price_max }}</span>
+                  </div>
+
+                {%- when 'toggles' -%}
+                  {%- assign options = block.settings.options | split: ',' -%}
+                  <ul class="collection__options" role="list">
+                    {%- for option in options -%}
+                      {%- assign option_label = option | strip -%}
+                      <li>
+                        <label class="collection__switch-row">
+                          <span>{{ option_label | escape }}</span>
+                          <input
+                            type="checkbox"
+                            role="switch"
+                            class="collection__switch"
+                            data-filter-control
+                            data-label="{{ option_label | escape }}"
+                          >
+                        </label>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+              {%- endcase -%}
+            </div>
+          </details>
+        {%- endfor -%}
+      </aside>
+
+      <div class="collection__backdrop" data-filters-close></div>
+
+      <div class="collection__results">
+        <ul class="collection__grid" role="list" data-grid>
+          {%- liquid
+            assign promo_position = 0
+            if promo
+              if paginate.current_page == 1
+                assign promo_position = promo.settings.position
+                if promo_position > collection.products.size
+                  assign promo_position = collection.products.size | plus: 1
+                endif
+              endif
+            endif
+          -%}
+
+          {%- for product in collection.products -%}
+            {%- if forloop.index == promo_position -%}
+              {% render 'collection-promo', block: promo %}
+            {%- endif -%}
+
+            {%- liquid
+              assign image_loading = 'lazy'
+              if paginate.current_page == 1
+                if forloop.index <= 3
+                  assign image_loading = 'eager'
+                endif
+              endif
+            -%}
+            <li class="collection__item">{% render 'product-card', product: product, image_loading: image_loading %}</li>
+
+            {%- if forloop.last -%}
+              {%- if promo_position > forloop.length -%}
+                {% render 'collection-promo', block: promo %}
+              {%- endif -%}
+            {%- endif -%}
+          {%- else -%}
+            <li class="collection__empty">{{ 'collections.empty' | t }}</li>
+          {%- endfor -%}
+        </ul>
+
+        {%- if total > 0 -%}
+          <div class="collection__pagination">
+            <p class="collection__progress-label" data-progress-label>
+              {{- 'collections.listing.progress' | t: shown: shown, total: total -}}
+            </p>
+            <div class="collection__progress" style="--progress: {{ progress }}%;" aria-hidden="true" data-progress>
+              <span></span>
+            </div>
+            {%- if paginate.next -%}
+              <a class="collection__load-more" href="{{ paginate.next.url }}" data-load-more>
+                {{- 'collections.listing.load_more' | t -}}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endpaginate -%}
+</collection-listing>
 
 {% stylesheet %}
-  .collection-products {
+  .collection {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 40px 0 112px;
+  }
+
+  /* Toolbar */
+  .collection__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .collection__toolbar-start,
+  .collection__toolbar-end {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .collection__toolbar-end {
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .collection__filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--color-foreground);
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .collection__filter-toggle .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .collection__count {
+    margin: 0;
+    font-size: 15px;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+
+  .collection__chips {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .collection__chips[hidden] {
+    display: none;
+  }
+
+  .collection__chip-list {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .collection__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px 7px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-foreground);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .collection__chip .icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .collection__clear {
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-accent);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .collection__sort {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 18px;
+    border-radius: 999px;
+    outline: 1px solid var(--color-border);
+    outline-offset: -0.5px;
+    font-size: 14px;
+  }
+
+  .collection__sort-label {
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+
+  .collection__sort-select {
+    appearance: none;
+    padding: 11px 22px 11px 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-foreground);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .collection__sort-select:focus-visible {
+    outline: none;
+  }
+
+  .collection__sort:focus-within {
+    outline: 2px solid var(--color-foreground);
+  }
+
+  .collection__sort .icon {
+    position: absolute;
+    right: 18px;
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+  }
+
+  .collection__view {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    outline: 1px solid var(--color-border);
+    outline-offset: -0.5px;
+  }
+
+  .collection__view-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-foreground);
+    cursor: pointer;
+  }
+
+  .collection__view-button[aria-pressed='true'] {
+    background: var(--color-foreground);
+    color: #fff;
+  }
+
+  .collection__view-button .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Layout */
+  .collection__layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 48px;
+  }
+
+  .collection__results {
+    flex: 1 1 0;
+    min-width: 0;
+    container: results / inline-size;
+  }
+
+  /* Filters */
+  .collection__filters {
+    flex-shrink: 0;
+    width: 280px;
+  }
+
+  .collection--filters-hidden .collection__filters {
+    display: none;
+  }
+
+  .collection__filters-header,
+  .collection__backdrop {
+    display: none;
+  }
+
+  .collection__filter {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .collection__filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 0;
+    font-size: 16px;
+    font-weight: 700;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .collection__filter-header::-webkit-details-marker {
+    display: none;
+  }
+
+  .collection__filter-header .icon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .collection__filter[open] .collection__filter-header .icon {
+    transform: rotate(180deg);
+  }
+
+  .collection__filter-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: -6px;
+    padding-bottom: 22px;
+  }
+
+  .collection__options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .collection__option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .collection__option-label {
+    flex: 1 1 0;
+  }
+
+  .collection__option-count {
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+
+  .collection__checkbox {
+    appearance: none;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    border-radius: 6px;
+    outline: 1.5px solid var(--color-border);
+    outline-offset: -0.75px;
+    background: #fff center / 14px no-repeat;
+    cursor: pointer;
+  }
+
+  .collection__checkbox:checked,
+  .collection__checkbox--checked {
+    outline-color: var(--color-accent);
+    background-color: var(--color-accent);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  }
+
+  .collection__checkbox:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+  }
+
+  .collection__sizes {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .collection__size {
+    height: 42px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    outline: 1px solid var(--color-border);
+    outline-offset: -0.5px;
+    background: #fff;
+    color: var(--color-foreground);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .collection__size[aria-pressed='true'] {
+    outline-color: var(--color-foreground);
+    background: var(--color-foreground);
+    color: #fff;
+  }
+
+  .collection__swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .collection__swatch {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    outline: 2px solid transparent;
+    outline-offset: -1px;
+    background: var(--swatch);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
+    cursor: pointer;
+  }
+
+  .collection__swatch[aria-pressed='true'] {
+    outline-color: var(--color-foreground);
+  }
+
+  .collection__range {
+    position: relative;
+    height: 4px;
+    margin: 8px 0;
+    border-radius: 999px;
+    background: var(--color-border);
+  }
+
+  .collection__range-active {
+    position: absolute;
+    inset: 0 28% 0 0;
+    border-radius: inherit;
+    background: var(--color-accent);
+  }
+
+  .collection__range-handle {
+    position: absolute;
+    top: -8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    outline: 2px solid var(--color-accent);
+    outline-offset: -1px;
+    background: #fff;
+  }
+
+  .collection__range-handle--min {
+    left: -2px;
+  }
+
+  .collection__range-handle--max {
+    left: calc(72% - 10px);
+  }
+
+  .collection__price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .collection__price-value {
+    flex: 1 1 0;
+    padding: 11px 14px;
+    border-radius: 10px;
+    outline: 1px solid var(--color-border);
+    outline-offset: -0.5px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .collection__price-dash {
+    color: var(--color-muted);
+  }
+
+  .collection__switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  /* The knob is a radial gradient so the input needs no extra markup */
+  .collection__switch {
+    appearance: none;
+    flex-shrink: 0;
+    width: 40px;
+    height: 24px;
+    margin: 0;
+    border-radius: 999px;
+    background: radial-gradient(circle 9px at 12px 50%, #fff 95%, transparent) no-repeat, #dcd2d1;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .collection__switch:checked {
+    background: radial-gradient(circle 9px at 28px 50%, #fff 95%, transparent) no-repeat, var(--color-accent);
+  }
+
+  .collection__switch:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+  }
+
+  /* Grid */
+  .collection__grid {
+    --columns: 3;
+    display: grid;
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    gap: 40px 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .collection__grid[data-view='rows'] {
+    --columns: 2;
+  }
+
+  @container results (min-width: 1100px) {
+    .collection__grid {
+      --columns: 4;
+    }
+
+    .collection__grid[data-view='rows'] {
+      --columns: 3;
+    }
+  }
+
+  @container results (max-width: 720px) {
+    .collection__grid {
+      --columns: 2;
+      gap: 28px 12px;
+    }
+
+    .collection__grid[data-view='rows'] {
+      --columns: 1;
+    }
+  }
+
+  .collection__item {
+    min-width: 0;
+  }
+
+  .collection__empty {
+    grid-column: 1 / -1;
+    padding: 48px 0;
+    color: var(--color-muted);
+    text-align: center;
+  }
+
+  /* Pagination */
+  .collection__pagination {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-top: 64px;
+  }
+
+  .collection__progress-label {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-muted);
+  }
+
+  .collection__progress {
+    width: 240px;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-border);
+  }
+
+  .collection__progress span {
+    display: block;
+    width: var(--progress);
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-foreground);
+    transition: width 0.3s ease;
+  }
+
+  .collection__load-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 32px;
+    border-radius: 999px;
+    outline: 1.5px solid var(--color-foreground);
+    outline-offset: -0.75px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .collection__load-more:hover,
+  .collection__load-more[aria-busy='true'] {
+    background: var(--color-foreground);
+    color: #fff;
+  }
+
+  /* Tablet and mobile: filters become an off-canvas drawer */
+  @media (max-width: 989px) {
+    .collection {
+      gap: 24px;
+      padding: 24px 0 72px;
+    }
+
+    .collection__toolbar {
+      flex-wrap: wrap;
+      padding-bottom: 20px;
+    }
+
+    .collection__toolbar-start {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .collection__chips {
+      order: 3;
+      flex-basis: 100%;
+    }
+
+    .collection__filters,
+    .collection--filters-hidden .collection__filters {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 31;
+      display: block;
+      width: min(360px, 88vw);
+      padding: 0 24px 32px;
+      overflow-y: auto;
+      background: var(--color-background);
+      transform: translateX(-100%);
+      visibility: hidden;
+      transition: transform 0.3s ease, visibility 0s linear 0.3s;
+    }
+
+    .collection--filters-open .collection__filters {
+      transform: none;
+      visibility: visible;
+      transition: transform 0.3s ease;
+    }
+
+    .collection__filters-header {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-background);
+    }
+
+    .collection__filters-title {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .collection__filters-close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--color-foreground);
+      cursor: pointer;
+    }
+
+    .collection__filters-close .icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .collection--filters-open .collection__backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: block;
+      background: rgb(21 19 19 / 0.45);
+    }
+  }
+
+  @media (max-width: 599px) {
+    .collection__count {
+      order: 2;
+      flex-basis: 100%;
+      font-size: 14px;
+    }
+
+    .collection__toolbar-end {
+      flex: 1 1 auto;
+      justify-content: space-between;
+    }
+
+    .collection__toolbar {
+      align-items: flex-start;
+    }
+
+    .collection__sort {
+      padding: 0 14px;
+    }
+
+    .collection__sort .icon {
+      right: 14px;
+    }
+
+    .collection__pagination {
+      padding-top: 40px;
+    }
   }
 {% endstylesheet %}
+
+{% javascript %}
+  if (!customElements.get('collection-listing')) {
+    customElements.define(
+      'collection-listing',
+      class CollectionListing extends HTMLElement {
+        static viewStorageKey = 'soleship:collection-view';
+
+        connectedCallback() {
+          this.mobileQuery = window.matchMedia('(max-width: 989px)');
+          this.toggleButton = this.querySelector('[data-filter-toggle]');
+          this.filters = this.querySelector('.collection__filters');
+          this.grid = this.querySelector('[data-grid]');
+
+          this.addEventListener('click', this.onClick);
+          this.addEventListener('change', this.onChange);
+          this.addEventListener('keydown', this.onKeydown);
+          this.mobileQuery.addEventListener('change', this.onBreakpointChange);
+
+          this.restoreView();
+          this.syncFilterToggle();
+        }
+
+        disconnectedCallback() {
+          this.mobileQuery.removeEventListener('change', this.onBreakpointChange);
+          document.documentElement.style.removeProperty('overflow');
+        }
+
+        onClick = (event) => {
+          const target = event.target.closest('button, a, [data-filters-close]');
+          if (!target || !this.contains(target)) return;
+
+          if (target.hasAttribute('data-filter-toggle')) {
+            this.toggleFilters();
+          } else if (target.hasAttribute('data-filters-close')) {
+            this.setDrawerOpen(false);
+          } else if (target.dataset.viewButton) {
+            this.setView(target.dataset.viewButton);
+          } else if (target.hasAttribute('data-chip')) {
+            this.setControlActive(target.filterControl, false);
+            this.renderChips();
+            (this.querySelector('[data-chip]') || this.toggleButton).focus();
+          } else if (target.hasAttribute('data-clear-all')) {
+            this.controls.forEach((control) => this.setControlActive(control, false));
+            this.renderChips();
+            this.toggleButton.focus();
+          } else if (target.hasAttribute('data-filter-control')) {
+            this.setControlActive(target, target.getAttribute('aria-pressed') !== 'true');
+            this.renderChips();
+          } else if (target.hasAttribute('data-load-more')) {
+            event.preventDefault();
+            this.loadMore(target);
+          }
+        };
+
+        onChange = (event) => {
+          if (event.target.matches('[data-sort]')) {
+            event.target.form.requestSubmit();
+          } else if (event.target.matches('[data-filter-control]')) {
+            this.renderChips();
+          }
+        };
+
+        onKeydown = (event) => {
+          if (event.key !== 'Escape' || !this.classList.contains('collection--filters-open')) return;
+          this.setDrawerOpen(false);
+        };
+
+        onBreakpointChange = () => {
+          this.setDrawerOpen(false, false);
+          this.syncFilterToggle();
+        };
+
+        get controls() {
+          return this.querySelectorAll('[data-filter-control]');
+        }
+
+        isControlActive(control) {
+          if (control instanceof HTMLInputElement) return control.checked;
+          return control.getAttribute('aria-pressed') === 'true';
+        }
+
+        setControlActive(control, active) {
+          if (!control) return;
+          if (control instanceof HTMLInputElement) {
+            control.checked = active;
+          } else {
+            control.setAttribute('aria-pressed', String(active));
+          }
+        }
+
+        renderChips() {
+          const chips = this.querySelector('[data-chips]');
+          const template = this.querySelector('[data-chip-template]');
+          const removeLabel = this.filters.dataset.removeLabel;
+          const active = Array.from(this.controls).filter((control) => this.isControlActive(control));
+
+          const items = active.map((control) => {
+            const item = template.content.firstElementChild.cloneNode(true);
+            const button = item.querySelector('[data-chip]');
+            button.filterControl = control;
+            button.setAttribute('aria-label', removeLabel.replace('[label]', control.dataset.label));
+            item.querySelector('[data-chip-label]').textContent = control.dataset.label;
+            return item;
+          });
+
+          this.querySelector('[data-chip-list]').replaceChildren(...items);
+          chips.hidden = items.length === 0;
+        }
+
+        toggleFilters() {
+          if (this.mobileQuery.matches) {
+            this.setDrawerOpen(!this.classList.contains('collection--filters-open'));
+          } else {
+            this.classList.toggle('collection--filters-hidden');
+            this.syncFilterToggle();
+          }
+        }
+
+        setDrawerOpen(open, moveFocus = true) {
+          this.classList.toggle('collection--filters-open', open);
+          if (open && this.mobileQuery.matches) {
+            document.documentElement.style.overflow = 'hidden';
+          } else {
+            document.documentElement.style.removeProperty('overflow');
+          }
+          this.syncFilterToggle();
+
+          if (!moveFocus) return;
+          if (open) {
+            this.querySelector('.collection__filters-close')?.focus();
+          } else {
+            this.toggleButton.focus();
+          }
+        }
+
+        syncFilterToggle() {
+          const visible = this.mobileQuery.matches
+            ? this.classList.contains('collection--filters-open')
+            : !this.classList.contains('collection--filters-hidden');
+          const label = this.toggleButton.querySelector('[data-filter-toggle-label]');
+
+          this.toggleButton.setAttribute('aria-expanded', String(visible));
+          label.textContent = visible ? this.toggleButton.dataset.hideText : this.toggleButton.dataset.showText;
+        }
+
+        restoreView() {
+          let view = 'grid';
+          try {
+            view = localStorage.getItem(CollectionListing.viewStorageKey) || 'grid';
+          } catch (error) {}
+          this.setView(view, false);
+        }
+
+        setView(view, persist = true) {
+          this.grid.dataset.view = view;
+          this.querySelectorAll('[data-view-button]').forEach((button) => {
+            button.setAttribute('aria-pressed', String(button.dataset.viewButton === view));
+          });
+
+          if (!persist) return;
+          try {
+            localStorage.setItem(CollectionListing.viewStorageKey, view);
+          } catch (error) {}
+        }
+
+        async loadMore(link) {
+          if (link.getAttribute('aria-busy') === 'true') return;
+          link.setAttribute('aria-busy', 'true');
+
+          try {
+            const url = new URL(link.href, window.location.href);
+            url.searchParams.set('section_id', this.dataset.sectionId);
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Could not load more products');
+
+            const html = new DOMParser().parseFromString(await response.text(), 'text/html');
+            const items = Array.from(html.querySelectorAll('[data-grid] > li'));
+            this.grid.append(...items);
+
+            ['[data-count]', '[data-progress-label]', '[data-progress]'].forEach((selector) => {
+              const next = html.querySelector(selector);
+              if (next) this.querySelector(selector)?.replaceWith(next);
+            });
+
+            const nextLink = html.querySelector('[data-load-more]');
+            if (nextLink) {
+              const nextUrl = new URL(nextLink.getAttribute('href'), window.location.href);
+              nextUrl.searchParams.delete('section_id');
+              link.href = nextUrl.pathname + nextUrl.search;
+            } else {
+              link.remove();
+            }
+
+            items[0]?.querySelector('a[href]:not([tabindex="-1"])')?.focus();
+          } catch (error) {
+            window.location.href = link.href;
+          } finally {
+            link.removeAttribute('aria-busy');
+          }
+        }
+      }
+    );
+  }
+{% endjavascript %}
 
 {% schema %}
 {
   "name": "t:general.collection",
-  "settings": []
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "t:labels.products_per_page",
+      "min": 4,
+      "max": 24,
+      "step": 4,
+      "default": 12
+    },
+    {
+      "type": "paragraph",
+      "content": "t:info.static_filters"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "t:blocks.filter_category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.title",
+          "default": "Category"
+        },
+        {
+          "type": "collection_list",
+          "id": "collections",
+          "label": "t:labels.collections",
+          "limit": 10
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "t:labels.open_by_default",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "checklist",
+      "name": "t:blocks.filter_checklist",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.title",
+          "default": "Cut height"
+        },
+        {
+          "type": "text",
+          "id": "options",
+          "label": "t:labels.options",
+          "info": "t:info.comma_separated",
+          "default": "Low-cut, Mid-cut, High-top"
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "t:labels.open_by_default",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "size",
+      "name": "t:blocks.filter_size",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.title",
+          "default": "Size (EU)"
+        },
+        {
+          "type": "text",
+          "id": "sizes",
+          "label": "t:labels.sizes",
+          "info": "t:info.comma_separated",
+          "default": "39, 40, 41, 42, 43, 44, 45, 46"
+        },
+        {
+          "type": "text",
+          "id": "label_prefix",
+          "label": "t:labels.label_prefix",
+          "default": "EU"
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "t:labels.open_by_default",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "name": "t:blocks.filter_color",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.title",
+          "default": "Color"
+        },
+        {
+          "type": "text",
+          "id": "colors",
+          "label": "t:labels.colors",
+          "info": "t:info.color_pairs",
+          "default": "Black:#151313, Brown:#8A6A54, Olive:#4A4F45, Graphite:#6B6E73, Bone:#E8DCD8, Tan:#C9A27A"
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "t:labels.open_by_default",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "t:blocks.filter_price",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.title",
+          "default": "Price"
+        },
+        {
+          "type": "number",
+          "id": "price_min",
+          "label": "t:labels.price_min",
+          "default": 1000000
+        },
+        {
+          "type": "number",
+          "id": "price_max",
+          "label": "t:labels.price_max",
+          "default": 2500000
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "t:labels.open_by_default",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "toggles",
+      "name": "t:blocks.filter_toggles",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.title",
+          "default": "Features"
+        },
+        {
+          "type": "text",
+          "id": "options",
+          "label": "t:labels.options",
+          "info": "t:info.comma_separated",
+          "default": "Waterproof, Slip-resistant, Composite toe, Side zip"
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "t:labels.open_by_default",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "promo",
+      "name": "t:blocks.promo",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:labels.image"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "t:labels.eyebrow",
+          "default": "Limited drop"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.title",
+          "default": "The Summit Red edition"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "t:labels.text",
+          "default": "Grey suede, signal-red laces, Vibram-grade grip. Only 500 pairs."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:labels.button_label",
+          "default": "Shop the drop"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:labels.button_link"
+        },
+        {
+          "type": "range",
+          "id": "position",
+          "label": "t:labels.position",
+          "info": "t:info.promo_position",
+          "min": 1,
+          "max": 24,
+          "step": 1,
+          "default": 7
+        },
+        {
+          "type": "color",
+          "id": "background",
+          "label": "t:labels.background",
+          "default": "#7E1B1F"
+        }
+      ]
+    }
+  ]
 }
 {% endschema %}

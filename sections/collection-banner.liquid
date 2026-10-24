@@ -1,0 +1,281 @@
+{%- liquid
+  assign banner_image = collection.image | default: section.settings.image
+  assign description = collection.description | strip_html | strip
+  assign all_collection = section.settings.all_collection
+-%}
+
+<div
+  class="collection-banner full-width"
+  style="--banner-bg: {{ section.settings.background }};"
+>
+  {%- if banner_image -%}
+    <div class="collection-banner__media">
+      {{
+        banner_image
+        | image_url: width: 1600
+        | image_tag:
+          loading: 'eager',
+          fetchpriority: 'high',
+          widths: '600, 900, 1200, 1600',
+          sizes: '(min-width: 990px) 56vw, 100vw',
+          class: 'collection-banner__image',
+          alt: ''
+      }}
+      <div class="collection-banner__blend"></div>
+    </div>
+  {%- endif -%}
+
+  <div class="collection-banner__content page-width">
+    <nav class="collection-banner__breadcrumb" aria-label="{{ 'products.breadcrumb.label' | t }}">
+      <ol role="list">
+        <li><a href="{{ routes.root_url }}">{{ 'products.breadcrumb.home' | t }}</a></li>
+        {%- if collection.url != routes.all_products_collection_url -%}
+          <li>
+            {%- render 'icon', name: 'chevron-right' -%}
+            <a href="{{ routes.all_products_collection_url }}">{{ 'products.breadcrumb.shop' | t }}</a>
+          </li>
+        {%- endif -%}
+        <li>
+          {%- render 'icon', name: 'chevron-right' -%}
+          <span aria-current="page">{{ collection.title | escape }}</span>
+        </li>
+      </ol>
+    </nav>
+
+    <h1 class="collection-banner__title heading-display">{{ collection.title | escape }}</h1>
+
+    {%- if description != blank -%}
+      <p class="collection-banner__description">{{ description | truncate: 220 }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.collections.size > 0 or all_collection -%}
+      <ul class="collection-banner__pills" role="list">
+        {%- if all_collection -%}
+          {%- assign pill_label = section.settings.all_label | default: all_collection.title -%}
+          <li>
+            <a
+              class="collection-banner__pill{% if all_collection.handle == collection.handle %} collection-banner__pill--active{% endif %}"
+              href="{{ all_collection.url }}"
+              {% if all_collection.handle == collection.handle %}
+                aria-current="page"
+              {% endif %}
+            >
+              {{- pill_label | escape -}}
+            </a>
+          </li>
+        {%- endif -%}
+        {%- for pill in section.settings.collections -%}
+          <li>
+            <a
+              class="collection-banner__pill{% if pill.handle == collection.handle %} collection-banner__pill--active{% endif %}"
+              href="{{ pill.url }}"
+              {% if pill.handle == collection.handle %}
+                aria-current="page"
+              {% endif %}
+            >
+              {{- pill.title | escape -}}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .collection-banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 420px;
+    overflow: hidden;
+    background: var(--banner-bg);
+    color: #fff;
+  }
+
+  .collection-banner__media {
+    position: absolute;
+    inset: 0 0 0 44%;
+  }
+
+  .collection-banner__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Fades the photo into the solid background on the left edge */
+  .collection-banner__blend {
+    position: absolute;
+    inset: 0 -2px 0 -2px;
+    background: linear-gradient(90deg, var(--banner-bg) 0%, rgb(from var(--banner-bg) r g b / 0.9) 30%, rgb(from var(--banner-bg) r g b / 0) 100%);
+  }
+
+  .collection-banner__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 56px 0;
+  }
+
+  .collection-banner__breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    color: #e3c4c5;
+  }
+
+  .collection-banner__breadcrumb li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .collection-banner__breadcrumb a {
+    text-decoration: none;
+  }
+
+  .collection-banner__breadcrumb a:hover {
+    color: #fff;
+  }
+
+  .collection-banner__breadcrumb [aria-current] {
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .collection-banner__breadcrumb .icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .collection-banner__title {
+    margin: 0;
+    font-size: clamp(3rem, 6.2vw, 5.5rem);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .collection-banner__description {
+    max-width: 520px;
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.5;
+    color: #f0d3d4;
+  }
+
+  .collection-banner__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .collection-banner__pill {
+    display: inline-flex;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.12);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+  }
+
+  .collection-banner__pill:hover {
+    background: rgb(255 255 255 / 0.22);
+  }
+
+  .collection-banner__pill--active,
+  .collection-banner__pill--active:hover {
+    background: #fff;
+    color: var(--color-foreground);
+  }
+
+  @media (max-width: 749px) {
+    .collection-banner {
+      min-height: 0;
+    }
+
+    .collection-banner__media {
+      inset: 0;
+      opacity: 0.45;
+    }
+
+    .collection-banner__blend {
+      background: linear-gradient(0deg, var(--banner-bg) 0%, rgb(from var(--banner-bg) r g b / 0.6) 100%);
+    }
+
+    .collection-banner__content {
+      gap: 14px;
+      padding: 40px 0;
+    }
+
+    .collection-banner__description {
+      font-size: 16px;
+    }
+
+    .collection-banner__pills {
+      flex-wrap: nowrap;
+      max-width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.collection_banner.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:labels.image",
+      "info": "t:info.banner_image"
+    },
+    {
+      "type": "text",
+      "id": "all_label",
+      "label": "t:labels.all_label",
+      "info": "t:info.tab_label"
+    },
+    {
+      "type": "collection",
+      "id": "all_collection",
+      "label": "t:labels.all_collection"
+    },
+    {
+      "type": "collection_list",
+      "id": "collections",
+      "label": "t:labels.pill_collections",
+      "limit": 8
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "t:labels.background",
+      "default": "#7E1B1F"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.collection_banner.name"
+    }
+  ]
+}
+{% endschema %}
