@@ -53,7 +53,12 @@
     </a>
 
     <div class="site-header__actions">
-      <a class="site-header__pill site-header__search" href="{{ routes.search_url }}">
+      <a
+        class="site-header__pill site-header__search"
+        href="{{ routes.search_url }}"
+        aria-haspopup="dialog"
+        data-search-open
+      >
         {% render 'icon', name: 'search' %}
         <span>{{ 'header.search' | t }}</span>
       </a>

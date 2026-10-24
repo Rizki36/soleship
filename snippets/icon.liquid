@@ -1,7 +1,7 @@
 {% doc %}
   Renders an inline Lucide icon that inherits the current text color.
 
-  @param {string} name - Icon name: truck, search, heart, bag, user, menu, close, arrow-right, arrow-left, arrow-up-right, chevron-right, chevron-down, check, layout-grid, rows-3, sliders-horizontal, maximize, minus, plus, ruler, refresh-ccw, star, shield, shield-check, badge-check, activity, footprints, wind, droplets, feather, instagram, facebook, youtube, twitter
+  @param {string} name - Icon name: truck, search, heart, bag, user, menu, close, arrow-right, arrow-left, arrow-up-right, arrow-up-left, arrow-up, arrow-down, corner-down-left, history, trending-up, chevron-right, chevron-down, check, layout-grid, rows-3, sliders-horizontal, maximize, minus, plus, ruler, refresh-ccw, star, shield, shield-check, badge-check, activity, footprints, wind, droplets, feather, instagram, facebook, youtube, twitter
   @param {string} [class] - Extra classes for the svg element
 
   @example
@@ -50,6 +50,18 @@
       <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
     {%- when 'arrow-up-right' -%}
       <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+    {%- when 'arrow-up-left' -%}
+      <path d="M7 17V7h10"/><path d="M17 17 7 7"/>
+    {%- when 'arrow-up' -%}
+      <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
+    {%- when 'arrow-down' -%}
+      <path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>
+    {%- when 'corner-down-left' -%}
+      <path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/>
+    {%- when 'history' -%}
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>
+    {%- when 'trending-up' -%}
+      <path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/>
     {%- when 'chevron-right' -%}
       <path d="m9 18 6-6-6-6"/>
     {%- when 'chevron-down' -%}

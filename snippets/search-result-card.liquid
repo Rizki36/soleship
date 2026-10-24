@@ -1,0 +1,273 @@
+{% doc %}
+  Renders a compact, fully clickable product row for the search overlay:
+  thumbnail, title with the searched terms highlighted, a meta line built
+  from the product's main collection and type, price, rating and the number
+  of colors.
+
+  The rating is read from the standard `reviews.rating` product metafield
+  and hidden when it is not set.
+
+  @param {product} product - The product to render
+  @param {string} [terms] - Search terms to highlight in the title
+
+  @example
+  {% render 'search-result-card', product: product, terms: search.terms %}
+{% enddoc %}
+
+{%- liquid
+  assign rating = product.metafields.reviews.rating.value
+  assign skipped_handles = 'frontpage,best-sellers,new-arrivals,all' | split: ','
+
+  assign main_collection = blank
+  for collection in product.collections
+    unless skipped_handles contains collection.handle
+      assign main_collection = collection.title
+      break
+    endunless
+  endfor
+
+  assign color_count = 0
+  for option in product.options_with_values
+    assign option_name = option.name | downcase
+    if option_name == 'color' or option_name == 'colour'
+      assign color_count = option.values.size
+    endif
+  endfor
+
+  assign title = product.title | escape
+  if terms != blank
+    assign title = title | highlight: terms
+  endif
+-%}
+
+<a
+  class="search-card"
+  href="{{ product.url }}"
+  data-search-option
+  data-type="{{ product.type | handleize }}"
+>
+  <span class="search-card__thumb">
+    {%- if product.featured_image -%}
+      {{
+        product.featured_image
+        | image_url: width: 240
+        | image_tag: loading: 'lazy', widths: '120, 240', sizes: '116px', alt: ''
+      }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag }}
+    {%- endif -%}
+  </span>
+
+  <span class="search-card__info">
+    <span class="search-card__top">
+      <span class="search-card__title">{{ title }}</span>
+      {%- if main_collection != blank or product.type != blank -%}
+        <span class="search-card__meta">
+          {%- if main_collection != blank -%}{{ main_collection | escape }}{%- endif -%}
+          {%- if main_collection != blank and product.type != blank %} · {% endif -%}
+          {%- if product.type != blank -%}{{ product.type | escape }}{%- endif -%}
+        </span>
+      {%- endif -%}
+    </span>
+
+    <span class="search-card__bottom">
+      <span class="search-card__price">
+        {%- if product.price_varies -%}
+          {%- assign price_min = product.price_min | money_without_trailing_zeros -%}
+          {{ 'products.price_from' | t: price: price_min }}
+        {%- else -%}
+          {{ product.price | money_without_trailing_zeros }}
+        {%- endif -%}
+      </span>
+
+      {%- if rating -%}
+        {%- assign rating_value = rating.rating | round: 1 -%}
+        {%- assign rating_max = rating.scale_max | round -%}
+        <span class="search-card__rating">
+          {% render 'icon', name: 'star' %}
+          <span aria-hidden="true">{{ rating_value }}</span>
+          <span class="visually-hidden">{{ 'products.rating_label' | t: rating: rating_value, max: rating_max }}</span>
+        </span>
+      {%- endif -%}
+
+      {%- if color_count > 0 -%}
+        <span class="search-card__colors">{{ 'search_overlay.colors' | t: count: color_count }}</span>
+      {%- endif -%}
+    </span>
+  </span>
+
+  <span class="search-card__go" aria-hidden="true">
+    {% render 'icon', name: 'arrow-up-right' %}
+  </span>
+</a>
+
+{% stylesheet %}
+  .search-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+    padding: 12px;
+    border-radius: 18px;
+    outline: 1px solid var(--color-border);
+    outline-offset: -0.5px;
+    background: #fff;
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: background-color 0.15s ease, outline-color 0.15s ease;
+  }
+
+  .search-card[hidden] {
+    display: none;
+  }
+
+  .search-card:hover,
+  .search-card.is-active {
+    background: var(--color-surface);
+    outline-color: var(--color-brand);
+  }
+
+  .search-card:focus-visible {
+    outline: 2px solid var(--color-brand);
+  }
+
+  .search-card__thumb {
+    flex-shrink: 0;
+    width: 116px;
+    height: 116px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #f3edec;
+  }
+
+  .search-card__thumb img,
+  .search-card__thumb svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .search-card__info {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .search-card__top {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .search-card__title {
+    overflow: hidden;
+    font-size: 18px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .search-card__title .highlight {
+    display: inline;
+    height: auto;
+    padding: 0 3px;
+    line-height: inherit;
+    border-radius: 4px;
+    background: rgb(215 48 59 / 0.12);
+    color: var(--color-brand);
+    font-weight: inherit;
+  }
+
+  .search-card__meta {
+    overflow: hidden;
+    color: var(--color-muted);
+    font-size: 14px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .search-card__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+  }
+
+  .search-card__price {
+    font-size: 18px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .search-card__rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .search-card__rating .icon {
+    width: 13px;
+    height: 13px;
+    color: var(--color-rating);
+    fill: currentColor;
+  }
+
+  .search-card__colors {
+    color: var(--color-muted);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .search-card__go {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    outline: 1px solid var(--color-border);
+    outline-offset: -0.5px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .search-card:hover .search-card__go,
+  .search-card.is-active .search-card__go {
+    background: var(--color-brand);
+    outline-color: var(--color-brand);
+    color: #fff;
+  }
+
+  .search-card__go .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 599px) {
+    .search-card {
+      gap: 14px;
+      padding: 10px;
+      border-radius: 16px;
+    }
+
+    .search-card__thumb {
+      width: 88px;
+      height: 88px;
+    }
+
+    .search-card__title,
+    .search-card__price {
+      font-size: 16px;
+    }
+
+    .search-card__go {
+      display: none;
+    }
+  }
+{% endstylesheet %}

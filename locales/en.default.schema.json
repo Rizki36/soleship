@@ -31,7 +31,10 @@
     "sidebar": "Sidebar",
     "text": "Text",
     "theme": "Theme",
-    "typography": "Typography"
+    "typography": "Typography",
+    "search_overlay": "Search overlay",
+    "predictive_search": "Predictive search",
+    "search_results": "Search results"
   },
   "labels": {
     "alignment": "Alignment",
@@ -121,7 +124,8 @@
     "colors": "Colors",
     "price_min": "Minimum price",
     "price_max": "Maximum price",
-    "position": "Position in grid"
+    "position": "Position in grid",
+    "popular_collection": "Popular collection"
   },
   "options": {
     "alignment": {
@@ -213,7 +217,8 @@
     "filter_color": "Color filter",
     "filter_price": "Price filter",
     "filter_toggles": "Toggle filter",
-    "promo": "Promo tile"
+    "promo": "Promo tile",
+    "trending_search": "Trending search"
   },
   "headers": {
     "featured_product": "Featured product",
@@ -238,6 +243,8 @@
     "static_filters": "Filter blocks are for display only and don't filter products yet.",
     "comma_separated": "Separate values with commas.",
     "color_pairs": "Comma-separated Name:#hex pairs, for example Black:#151313.",
-    "promo_position": "Shows on the first page before this product. Spans two columns."
+    "promo_position": "Shows on the first page before this product. Spans two columns.",
+    "popular_collection": "Shown before the shopper types. Defaults to Best sellers.",
+    "trending_link": "Leave empty to search for the label"
   }
 }

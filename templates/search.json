@@ -11,7 +11,42 @@
   "sections": {
     "main": {
       "type": "search",
-      "settings": {}
+      "blocks": {
+        "suggestion_1": {
+          "type": "suggestion",
+          "settings": {
+            "label": "Waterproof"
+          }
+        },
+        "suggestion_2": {
+          "type": "suggestion",
+          "settings": {
+            "label": "Stealth"
+          }
+        },
+        "suggestion_3": {
+          "type": "suggestion",
+          "settings": {
+            "label": "Mid cut"
+          }
+        },
+        "suggestion_4": {
+          "type": "suggestion",
+          "settings": {
+            "label": "Trail"
+          }
+        }
+      },
+      "block_order": [
+        "suggestion_1",
+        "suggestion_2",
+        "suggestion_3",
+        "suggestion_4"
+      ],
+      "settings": {
+        "background": "#7E1B1F",
+        "results_per_page": 24
+      }
     }
   },
   "order": [

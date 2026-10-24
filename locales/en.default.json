@@ -62,10 +62,24 @@
   },
   "search": {
     "title": "Search",
-    "placeholder": "Search articles, pages, or products",
+    "placeholder": "Search sneakers, collections or features",
     "submit": "Search",
     "no_results_html": "No results found for {{ terms }}",
-    "results_for_html": "{{ count }} results found for {{ terms }}"
+    "results_for_html": "{{ count }} results found for {{ terms }}",
+    "heading": "Search the gear",
+    "heading_terms": "“{{ terms }}”",
+    "results_count": {
+      "one": "{{ count }} result",
+      "other": "{{ count }} results"
+    },
+    "no_results_hint": "Check the spelling or try a broader term.",
+    "start": "What are you looking for?",
+    "read_more": "Read more",
+    "pagination": "Search results pages",
+    "types": {
+      "article": "Journal",
+      "page": "Page"
+    }
   },
   "accessibility": {
     "skip_to_content": "Skip to content"
@@ -128,5 +142,44 @@
     "email_placeholder": "Enter your email",
     "subscribe": "Subscribe",
     "success": "Thanks for subscribing! Check your inbox for your 10% code."
+  },
+  "search_overlay": {
+    "label": "Search the store",
+    "placeholder": "Search sneakers, collections or features",
+    "clear": "Clear",
+    "submit": "Search",
+    "close_label": "Close search",
+    "esc": "ESC",
+    "suggestions": "Suggestions",
+    "recent": "Recent searches",
+    "remove_recent": "Remove recent search",
+    "trending": "Trending now",
+    "popular": "Popular right now",
+    "products": "Products",
+    "results": {
+      "one": "{{ count }} result",
+      "other": "{{ count }} results"
+    },
+    "for_terms": "for “{{ terms }}”",
+    "all": "All",
+    "filter_by_type": "Filter results by type",
+    "in_collections": "In collections",
+    "items": {
+      "one": "{{ count }} item",
+      "other": "{{ count }} items"
+    },
+    "colors": {
+      "one": "{{ count }} color",
+      "other": "{{ count }} colors"
+    },
+    "fill": "Use “{{ terms }}” as your search",
+    "navigate": "Navigate",
+    "open": "Open",
+    "close": "Close",
+    "view_all": {
+      "one": "View {{ count }} result",
+      "other": "View all {{ count }} results"
+    },
+    "no_results": "No products match “{{ terms }}”. Try a trending search instead."
   }
 }

@@ -1,0 +1,1070 @@
+{%- liquid
+  assign popular_collection = section.settings.popular_collection
+  if popular_collection == blank
+    assign popular_collection = collections['best-sellers']
+  endif
+-%}
+
+<search-overlay
+  data-predictive-url="{{ routes.predictive_search_url }}"
+  data-search-url="{{ routes.search_url }}"
+  data-visible-limit="{{ section.settings.products_limit }}"
+>
+  <dialog class="search-overlay" aria-label="{{ 'search_overlay.label' | t }}">
+    <div class="search-overlay__panel">
+      <div class="search-overlay__top">
+        <a class="search-overlay__logo" href="{{ routes.root_url }}">{{ shop.name | upcase | escape }}</a>
+
+        <form class="search-overlay__form" action="{{ routes.search_url }}" method="get" role="search">
+          <label class="search-overlay__field">
+            <span class="visually-hidden">{{ 'search_overlay.label' | t }}</span>
+            {% render 'icon', name: 'search', class: 'search-overlay__field-icon' %}
+            <input
+              class="search-overlay__input"
+              type="search"
+              name="q"
+              placeholder="{{ 'search_overlay.placeholder' | t }}"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              role="combobox"
+              aria-expanded="false"
+              aria-autocomplete="list"
+              data-input
+            >
+          </label>
+          <input type="hidden" name="type" value="product">
+          <input type="hidden" name="options[prefix]" value="last">
+          <button type="button" class="search-overlay__clear" data-clear hidden>
+            {{- 'search_overlay.clear' | t -}}
+          </button>
+          <button type="submit" class="search-overlay__submit" aria-label="{{ 'search_overlay.submit' | t }}">
+            {% render 'icon', name: 'arrow-right' %}
+          </button>
+        </form>
+
+        <div class="search-overlay__close-group">
+          <kbd class="search-overlay__key search-overlay__key--esc">{{ 'search_overlay.esc' | t }}</kbd>
+          <button type="button" class="search-overlay__close" data-close aria-label="{{ 'search_overlay.close_label' | t }}">
+            {% render 'icon', name: 'close' %}
+          </button>
+        </div>
+      </div>
+
+      <div class="search-overlay__body">
+        <div class="search-overlay__aside">
+          <section class="search-overlay__group" data-suggestions-block hidden>
+            <h2 class="search-overlay__label">{{ 'search_overlay.suggestions' | t }}</h2>
+            <div class="search-overlay__suggestions" data-suggestions-slot></div>
+          </section>
+
+          <section class="search-overlay__group" data-recent-block hidden>
+            <div class="search-overlay__group-header">
+              <h2 class="search-overlay__label">{{ 'search_overlay.recent' | t }}</h2>
+              <button type="button" class="search-overlay__recent-clear" data-recent-clear>
+                {{- 'search_overlay.clear' | t -}}
+              </button>
+            </div>
+            <ul class="search-overlay__chips" role="list" data-recent-list></ul>
+            <template data-recent-template>
+              <li class="search-overlay__chip">
+                <button type="button" class="search-overlay__chip-term" data-recent-term>
+                  {% render 'icon', name: 'history' %}
+                  <span data-recent-label></span>
+                </button>
+                <button
+                  type="button"
+                  class="search-overlay__chip-remove"
+                  data-recent-remove
+                  aria-label="{{ 'search_overlay.remove_recent' | t }}"
+                >
+                  {% render 'icon', name: 'close' %}
+                </button>
+              </li>
+            </template>
+          </section>
+
+          {%- if section.blocks.size > 0 -%}
+            <section class="search-overlay__group">
+              <h2 class="search-overlay__label">{{ 'search_overlay.trending' | t }}</h2>
+              <ol class="search-overlay__trending" role="list">
+                {%- for block in section.blocks -%}
+                  {%- liquid
+                    assign rank = forloop.index
+                    if rank < 10
+                      assign rank = rank | prepend: '0'
+                    endif
+                    assign term_url = block.settings.link
+                    if term_url == blank
+                      assign encoded_label = block.settings.label | url_encode
+                      assign term_url = routes.search_url | append: '?type=product&q=' | append: encoded_label
+                    endif
+                  -%}
+                  <li {{ block.shopify_attributes }}>
+                    <a
+                      class="search-overlay__trend{% if forloop.first %} search-overlay__trend--hot{% endif %}"
+                      href="{{ term_url }}"
+                      {% if block.settings.link == blank %}
+                        data-term="{{ block.settings.label | escape }}"
+                      {% endif %}
+                    >
+                      <span class="search-overlay__trend-rank">{{ rank }}</span>
+                      <span class="search-overlay__trend-label">{{ block.settings.label | escape }}</span>
+                      {%- if forloop.first -%}
+                        {% render 'icon', name: 'trending-up' %}
+                      {%- endif -%}
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ol>
+            </section>
+          {%- endif -%}
+        </div>
+
+        <div class="search-overlay__results" aria-live="polite">
+          <div data-results-slot>
+            {%- if popular_collection != blank and popular_collection.products.size > 0 -%}
+              {%- liquid
+                assign popular_eyebrow = 'search_overlay.popular' | t
+                assign popular_heading = popular_collection.title | escape
+              -%}
+              {%- render 'search-results-panel',
+                products: popular_collection.products,
+                eyebrow: popular_eyebrow,
+                heading: popular_heading,
+                limit: section.settings.products_limit
+              -%}
+            {%- endif -%}
+          </div>
+
+          <div class="search-overlay__collections" data-collections-block hidden>
+            <h2 class="search-overlay__label">{{ 'search_overlay.in_collections' | t }}</h2>
+            <div class="search-overlay__collection-list" data-collections-slot></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-overlay__footer">
+        <ul class="search-overlay__hints" role="list">
+          <li>
+            <kbd class="search-overlay__key">{% render 'icon', name: 'arrow-up' %}</kbd>
+            <kbd class="search-overlay__key">{% render 'icon', name: 'arrow-down' %}</kbd>
+            {{ 'search_overlay.navigate' | t }}
+          </li>
+          <li>
+            <kbd class="search-overlay__key">{% render 'icon', name: 'corner-down-left' %}</kbd>
+            {{ 'search_overlay.open' | t }}
+          </li>
+          <li>
+            <kbd class="search-overlay__key search-overlay__key--text">{{ 'search_overlay.esc' | t }}</kbd>
+            {{ 'search_overlay.close' | t }}
+          </li>
+        </ul>
+
+        <a class="search-overlay__view-all" href="{{ routes.search_url }}" data-view-all hidden>
+          <span data-view-all-label></span>
+          {% render 'icon', name: 'arrow-right' %}
+        </a>
+      </div>
+    </div>
+  </dialog>
+</search-overlay>
+
+{% stylesheet %}
+  .search-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    border: 0;
+    background: transparent;
+    color: var(--color-foreground);
+    overscroll-behavior: contain;
+  }
+
+  .search-overlay::backdrop {
+    background: rgb(21 19 19 / 0.65);
+    backdrop-filter: blur(3px);
+  }
+
+  .search-overlay[open] .search-overlay__panel {
+    animation: search-overlay-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @keyframes search-overlay-in {
+    from {
+      opacity: 0;
+      transform: translateY(-24px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .search-overlay[open] .search-overlay__panel {
+      animation: none;
+    }
+  }
+
+  .search-overlay__panel {
+    padding: 0 var(--page-margin);
+    border-radius: 0 0 28px 28px;
+    background: #fff;
+    box-shadow: 0 24px 60px rgb(21 19 19 / 0.25);
+  }
+
+  .search-overlay__top,
+  .search-overlay__body,
+  .search-overlay__footer {
+    max-width: calc(var(--page-width) - var(--page-margin) * 2);
+    margin-inline: auto;
+  }
+
+  .search-overlay__top {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .search-overlay__logo {
+    color: var(--color-brand);
+    font-family: var(--font-heading--family);
+    font-size: 30px;
+    letter-spacing: 1.5px;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .search-overlay__form {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    height: 60px;
+    padding: 0 10px 0 24px;
+    border-radius: 999px;
+    outline: 1.5px solid var(--color-brand);
+    outline-offset: -0.75px;
+    background: var(--color-surface);
+  }
+
+  .search-overlay__field {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .search-overlay__field-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--color-brand);
+  }
+
+  .search-overlay__input {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-foreground);
+    font: inherit;
+    font-size: 20px;
+    font-weight: 500;
+    caret-color: var(--color-accent);
+    outline: none;
+    appearance: none;
+  }
+
+  .search-overlay__input::placeholder {
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+
+  .search-overlay__input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+
+  .search-overlay__clear {
+    padding: 8px 12px;
+    border: 0;
+    background: none;
+    color: var(--color-muted);
+    font-size: 14px;
+  }
+
+  .search-overlay__clear[hidden] {
+    display: none;
+  }
+
+  .search-overlay__clear:hover {
+    color: var(--color-foreground);
+  }
+
+  .search-overlay__submit,
+  .search-overlay__close {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    color: #fff;
+  }
+
+  .search-overlay__submit {
+    width: 42px;
+    height: 42px;
+    background: var(--color-brand);
+  }
+
+  .search-overlay__close {
+    width: 44px;
+    height: 44px;
+    background: var(--color-foreground);
+  }
+
+  .search-overlay__submit .icon,
+  .search-overlay__close .icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .search-overlay__close-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .search-overlay__key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 6px;
+    outline: 1px solid var(--color-border);
+    outline-offset: -0.5px;
+    color: var(--color-muted);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+  }
+
+  .search-overlay__key .icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .search-overlay__key--esc {
+    height: auto;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .search-overlay__body {
+    display: flex;
+    align-items: flex-start;
+    gap: 56px;
+    padding: 36px 0 40px;
+  }
+
+  .search-overlay__aside {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    gap: 36px;
+    width: 320px;
+  }
+
+  .search-overlay__group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .search-overlay__group[hidden],
+  .search-overlay__collections[hidden] {
+    display: none;
+  }
+
+  .search-overlay__group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .search-overlay__label {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .search-overlay__suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .search-overlay__recent-clear {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-accent);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .search-overlay__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .search-overlay__chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    outline: 1px solid var(--color-border);
+    outline-offset: -0.5px;
+    transition: outline-color 0.15s ease;
+  }
+
+  .search-overlay__chip:hover {
+    outline-color: var(--color-foreground);
+  }
+
+  .search-overlay__chip-term,
+  .search-overlay__chip-remove {
+    display: inline-flex;
+    align-items: center;
+    border: 0;
+    background: none;
+  }
+
+  .search-overlay__chip-term {
+    gap: 8px;
+    padding: 8px 4px 8px 12px;
+    color: var(--color-foreground);
+    font-size: 14px;
+  }
+
+  .search-overlay__chip-term .icon {
+    width: 14px;
+    height: 14px;
+    color: var(--color-muted);
+  }
+
+  .search-overlay__chip-remove {
+    padding: 8px 12px 8px 4px;
+    color: var(--color-muted);
+  }
+
+  .search-overlay__chip-remove .icon {
+    width: 13px;
+    height: 13px;
+  }
+
+  .search-overlay__chip-remove:hover {
+    color: var(--color-foreground);
+  }
+
+  .search-overlay__trending {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .search-overlay__trend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--color-foreground);
+    text-decoration: none;
+  }
+
+  .search-overlay__trend-rank {
+    color: var(--color-muted);
+    font-family: var(--font-heading--family);
+    font-size: 18px;
+  }
+
+  .search-overlay__trend--hot .search-overlay__trend-rank,
+  .search-overlay__trend .icon {
+    color: var(--color-accent);
+  }
+
+  .search-overlay__trend-label {
+    flex: 1 1 0;
+    font-size: 15px;
+  }
+
+  .search-overlay__trend:hover .search-overlay__trend-label {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .search-overlay__trend .icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .search-overlay__results {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .search-overlay__results[aria-busy='true'] {
+    opacity: 0.55;
+  }
+
+  .search-overlay__collections {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding-top: 6px;
+  }
+
+  .search-overlay__collection-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .search-overlay__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 84px;
+    padding: 18px 0 22px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .search-overlay__hints {
+    display: flex;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    color: var(--color-muted);
+    font-size: 13px;
+    list-style: none;
+  }
+
+  .search-overlay__hints li {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .search-overlay__hints .search-overlay__key:last-of-type {
+    margin-right: 4px;
+  }
+
+  .search-overlay__view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    padding: 13px 22px;
+    border-radius: 999px;
+    background: var(--color-brand);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform 0.2s ease;
+  }
+
+  .search-overlay__view-all[hidden] {
+    display: none;
+  }
+
+  .search-overlay__view-all:hover {
+    transform: translateY(-1px);
+  }
+
+  .search-overlay__view-all .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 989px) {
+    .search-overlay__panel {
+      min-height: 100%;
+      padding: 0 16px;
+      border-radius: 0;
+    }
+
+    .search-overlay__top {
+      gap: 10px;
+      padding: 14px 0;
+    }
+
+    .search-overlay__logo,
+    .search-overlay__key--esc,
+    .search-overlay__hints {
+      display: none;
+    }
+
+    .search-overlay__form {
+      height: 52px;
+      gap: 8px;
+      padding: 0 6px 0 16px;
+    }
+
+    .search-overlay__field {
+      gap: 10px;
+    }
+
+    .search-overlay__input {
+      font-size: 17px;
+    }
+
+    .search-overlay__clear {
+      padding: 8px 6px;
+    }
+
+    .search-overlay__submit {
+      width: 40px;
+      height: 40px;
+    }
+
+    .search-overlay__close {
+      width: 40px;
+      height: 40px;
+    }
+
+    .search-overlay__body {
+      flex-direction: column-reverse;
+      gap: 32px;
+      padding: 20px 0 24px;
+    }
+
+    .search-overlay__aside {
+      width: 100%;
+      gap: 28px;
+    }
+
+    .search-overlay__results {
+      width: 100%;
+      gap: 18px;
+    }
+
+    .search-overlay__footer {
+      position: sticky;
+      bottom: 0;
+      min-height: 0;
+      padding: 12px 0 16px;
+      background: #fff;
+    }
+
+    .search-overlay__view-all {
+      justify-content: center;
+      width: 100%;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  if (!customElements.get('search-overlay')) {
+    customElements.define(
+      'search-overlay',
+      class SearchOverlay extends HTMLElement {
+        static recentKey = 'soleship:recent-searches';
+        static recentMax = 6;
+
+        connectedCallback() {
+          this.dialog = this.querySelector('dialog');
+          this.form = this.querySelector('form');
+          this.input = this.querySelector('[data-input]');
+          this.clearButton = this.querySelector('[data-clear]');
+          this.resultsColumn = this.querySelector('.search-overlay__results');
+          this.resultsSlot = this.querySelector('[data-results-slot]');
+          this.popularMarkup = this.resultsSlot.innerHTML;
+          this.suggestionsBlock = this.querySelector('[data-suggestions-block]');
+          this.suggestionsSlot = this.querySelector('[data-suggestions-slot]');
+          this.collectionsBlock = this.querySelector('[data-collections-block]');
+          this.collectionsSlot = this.querySelector('[data-collections-slot]');
+          this.recentBlock = this.querySelector('[data-recent-block]');
+          this.recentList = this.querySelector('[data-recent-list]');
+          this.recentTemplate = this.querySelector('[data-recent-template]');
+          this.viewAll = this.querySelector('[data-view-all]');
+          this.visibleLimit = Number(this.dataset.visibleLimit) || 4;
+          this.activeIndex = -1;
+
+          document.addEventListener('click', this.onDocumentClick);
+          document.addEventListener('keydown', this.onDocumentKeydown);
+          this.dialog.addEventListener('click', this.onDialogClick);
+          this.dialog.addEventListener('close', this.onClose);
+          this.input.addEventListener('input', this.onInput);
+          this.input.addEventListener('keydown', this.onInputKeydown);
+          this.form.addEventListener('submit', this.onSubmit);
+
+          this.renderRecent();
+          this.applyTab('');
+        }
+
+        disconnectedCallback() {
+          document.removeEventListener('click', this.onDocumentClick);
+          document.removeEventListener('keydown', this.onDocumentKeydown);
+          document.documentElement.style.removeProperty('overflow');
+        }
+
+        open(opener) {
+          if (this.dialog.open) return;
+          this.opener = opener || document.activeElement;
+          this.renderRecent();
+          this.dialog.showModal();
+          document.documentElement.style.overflow = 'hidden';
+          this.input.focus();
+          this.input.select();
+        }
+
+        close() {
+          if (this.dialog.open) this.dialog.close();
+        }
+
+        onClose = () => {
+          document.documentElement.style.removeProperty('overflow');
+          this.setActive(-1);
+          if (this.opener && typeof this.opener.focus === 'function') this.opener.focus();
+        };
+
+        onDocumentClick = (event) => {
+          const opener = event.target.closest('[data-search-open]');
+          if (!opener || event.metaKey || event.ctrlKey || event.shiftKey) return;
+          event.preventDefault();
+          this.open(opener);
+        };
+
+        onDocumentKeydown = (event) => {
+          if (this.dialog.open) return;
+          const target = event.target;
+          const typing =
+            target instanceof HTMLElement &&
+            (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+          const shortcut =
+            (event.key === 'k' && (event.metaKey || event.ctrlKey)) || (event.key === '/' && !typing);
+          if (!shortcut) return;
+          event.preventDefault();
+          this.open();
+        };
+
+        onDialogClick = (event) => {
+          // Clicks on the dialog itself land on the scrim around the panel
+          if (event.target === this.dialog) return this.close();
+
+          const target = event.target.closest('button, a');
+          if (!target) return;
+
+          if (target.hasAttribute('data-close')) {
+            this.close();
+          } else if (target.hasAttribute('data-clear')) {
+            this.setQuery('');
+          } else if (target.hasAttribute('data-fill')) {
+            this.setQuery(target.dataset.fill);
+          } else if (target.hasAttribute('data-term')) {
+            event.preventDefault();
+            this.setQuery(target.dataset.term);
+          } else if (target.hasAttribute('data-recent-term')) {
+            this.setQuery(target.closest('li').dataset.term);
+          } else if (target.hasAttribute('data-recent-remove')) {
+            this.removeRecent(target.closest('li').dataset.term);
+          } else if (target.hasAttribute('data-recent-clear')) {
+            this.writeRecent([]);
+            this.renderRecent();
+            this.input.focus();
+          } else if (target.hasAttribute('data-type-tab')) {
+            this.applyTab(target.dataset.typeTab);
+          } else if (target.matches('a') && this.query) {
+            this.saveRecent(this.query);
+          }
+        };
+
+        onInput = () => {
+          clearTimeout(this.debounce);
+          this.debounce = setTimeout(() => this.search(), 250);
+          this.clearButton.hidden = this.input.value.length === 0;
+        };
+
+        onInputKeydown = (event) => {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            const options = this.options;
+            if (!options.length) return;
+            const step = event.key === 'ArrowDown' ? 1 : -1;
+            const next = this.activeIndex + step;
+            this.setActive(next < -1 ? options.length - 1 : next >= options.length ? -1 : next);
+          } else if (event.key === 'Enter' && this.activeIndex > -1) {
+            const option = this.options[this.activeIndex];
+            if (!option) return;
+            event.preventDefault();
+            const link = option.matches('a') ? option : option.querySelector('a');
+            if (this.query) this.saveRecent(this.query);
+            link?.click();
+          }
+        };
+
+        onSubmit = (event) => {
+          if (!this.query) {
+            event.preventDefault();
+            return;
+          }
+          this.saveRecent(this.query);
+        };
+
+        get query() {
+          return this.input.value.trim();
+        }
+
+        get options() {
+          return Array.from(this.dialog.querySelectorAll('[data-search-option]')).filter(
+            (option) => !option.hidden && option.offsetParent !== null
+          );
+        }
+
+        setQuery(value) {
+          this.input.value = value;
+          this.clearButton.hidden = value.length === 0;
+          this.input.focus();
+          this.search();
+        }
+
+        setActive(index) {
+          const options = this.options;
+          options.forEach((option, i) => option.classList.toggle('is-active', i === index));
+          this.activeIndex = index;
+          const active = options[index];
+          if (active) {
+            if (!active.id) active.id = `search-option-${Math.random().toString(36).slice(2, 9)}`;
+            this.input.setAttribute('aria-activedescendant', active.id);
+            active.scrollIntoView({ block: 'nearest' });
+          } else {
+            this.input.removeAttribute('aria-activedescendant');
+          }
+        }
+
+        async search() {
+          const query = this.query;
+          this.abortController?.abort();
+          this.setActive(-1);
+
+          if (!query) {
+            this.resultsSlot.innerHTML = this.popularMarkup;
+            this.suggestionsBlock.hidden = true;
+            this.collectionsBlock.hidden = true;
+            this.viewAll.hidden = true;
+            this.input.setAttribute('aria-expanded', 'false');
+            this.resultsColumn.removeAttribute('aria-busy');
+            this.applyTab('');
+            return;
+          }
+
+          this.abortController = new AbortController();
+          const { signal } = this.abortController;
+          const q = encodeURIComponent(query);
+          const predictiveUrl =
+            `${this.dataset.predictiveUrl}?q=${q}` +
+            '&resources[type]=query,collection,product&resources[limit]=4&resources[limit_scope]=each' +
+            '&section_id=predictive-search';
+          const resultsUrl =
+            `${this.dataset.searchUrl}?q=${q}&type=product&options[prefix]=last` +
+            '&section_id=search-overlay-results';
+
+          this.resultsColumn.setAttribute('aria-busy', 'true');
+
+          try {
+            const [predictive, results] = await Promise.all(
+              [predictiveUrl, resultsUrl].map((url) =>
+                fetch(url, { signal })
+                  .then((response) => (response.ok ? response.text() : ''))
+                  .then((html) => new DOMParser().parseFromString(html, 'text/html'))
+              )
+            );
+
+            this.renderPredictive(predictive);
+            this.renderResults(results);
+            this.input.setAttribute('aria-expanded', 'true');
+          } catch (error) {
+            if (error.name === 'AbortError') return;
+            this.form.submit();
+          } finally {
+            if (!signal.aborted) this.resultsColumn.removeAttribute('aria-busy');
+          }
+        }
+
+        renderPredictive(doc) {
+          const suggestions = doc.querySelector('[data-suggestions]');
+          const collections = doc.querySelector('[data-collections]');
+
+          this.suggestionsSlot.innerHTML = suggestions ? suggestions.innerHTML : '';
+          this.suggestionsBlock.hidden = !this.suggestionsSlot.children.length;
+          this.collectionsSlot.innerHTML = collections ? collections.innerHTML : '';
+          this.collectionsBlock.hidden = !this.collectionsSlot.children.length;
+        }
+
+        renderResults(doc) {
+          const results = doc.querySelector('[data-results]');
+          if (!results) {
+            this.resultsSlot.innerHTML = '';
+            this.viewAll.hidden = true;
+            return;
+          }
+
+          this.resultsSlot.innerHTML = results.innerHTML;
+          this.applyTab('');
+
+          const count = Number(results.dataset.count) || 0;
+          this.viewAll.hidden = count === 0;
+          this.viewAll.href = results.dataset.viewAllUrl;
+          this.viewAll.querySelector('[data-view-all-label]').textContent = results.dataset.viewAllLabel;
+        }
+
+        applyTab(type) {
+          this.resultsSlot.querySelectorAll('[data-type-tab]').forEach((tab) => {
+            tab.setAttribute('aria-pressed', String(tab.dataset.typeTab === type));
+          });
+
+          let shown = 0;
+          this.resultsSlot.querySelectorAll('[data-results-grid] > [data-type]').forEach((card) => {
+            const matches = !type || card.dataset.type === type;
+            card.hidden = !matches || shown >= this.visibleLimit;
+            if (matches) shown += 1;
+          });
+
+          this.setActive(-1);
+        }
+
+        readRecent() {
+          try {
+            const stored = JSON.parse(localStorage.getItem(SearchOverlay.recentKey));
+            return Array.isArray(stored) ? stored.filter((term) => typeof term === 'string') : [];
+          } catch (error) {
+            return [];
+          }
+        }
+
+        writeRecent(terms) {
+          try {
+            localStorage.setItem(SearchOverlay.recentKey, JSON.stringify(terms));
+          } catch (error) {
+            // Storage can be unavailable (private mode); recent searches are optional.
+          }
+        }
+
+        saveRecent(term) {
+          const lower = term.toLowerCase();
+          const terms = this.readRecent().filter((item) => item.toLowerCase() !== lower);
+          terms.unshift(term);
+          this.writeRecent(terms.slice(0, SearchOverlay.recentMax));
+        }
+
+        removeRecent(term) {
+          this.writeRecent(this.readRecent().filter((item) => item !== term));
+          this.renderRecent();
+          this.input.focus();
+        }
+
+        renderRecent() {
+          const terms = this.readRecent();
+          this.recentList.replaceChildren(
+            ...terms.map((term) => {
+              const item = this.recentTemplate.content.firstElementChild.cloneNode(true);
+              item.dataset.term = term;
+              item.querySelector('[data-recent-label]').textContent = term;
+              const remove = item.querySelector('[data-recent-remove]');
+              remove.setAttribute('aria-label', `${remove.getAttribute('aria-label')}: ${term}`);
+              return item;
+            })
+          );
+          this.recentBlock.hidden = terms.length === 0;
+        }
+      }
+    );
+  }
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:general.search_overlay",
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "collection",
+      "id": "popular_collection",
+      "label": "t:labels.popular_collection",
+      "info": "t:info.popular_collection"
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "t:labels.products_to_show",
+      "min": 2,
+      "max": 8,
+      "step": 2,
+      "default": 4
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trending",
+      "name": "t:blocks.trending_search",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:labels.label",
+          "default": "Night ops collection"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:labels.link",
+          "info": "t:info.trending_link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:general.search_overlay",
+      "blocks": [
+        { "type": "trending", "settings": { "label": "Night ops collection" } },
+        { "type": "trending", "settings": { "label": "Lightweight trail" } },
+        { "type": "trending", "settings": { "label": "Steel toe" } },
+        { "type": "trending", "settings": { "label": "Black leather" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

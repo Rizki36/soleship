@@ -27,10 +27,25 @@
         "transparent_on_home": true,
         "background": "#7E1B1F"
       }
+    },
+    "search_overlay": {
+      "type": "search-overlay",
+      "blocks": {
+        "trending_1": { "type": "trending", "settings": { "label": "Night ops collection" } },
+        "trending_2": { "type": "trending", "settings": { "label": "Lightweight trail" } },
+        "trending_3": { "type": "trending", "settings": { "label": "Steel toe" } },
+        "trending_4": { "type": "trending", "settings": { "label": "Black leather" } }
+      },
+      "block_order": ["trending_1", "trending_2", "trending_3", "trending_4"],
+      "settings": {
+        "popular_collection": "best-sellers",
+        "products_limit": 4
+      }
     }
   },
   "order": [
     "announcement",
-    "header"
+    "header",
+    "search_overlay"
   ]
 }

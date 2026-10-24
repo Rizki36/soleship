@@ -1,0 +1,179 @@
+{% doc %}
+  Renders the products column of the search overlay: an eyebrow, an Anton
+  heading with an optional muted subheading, product type tabs (only when
+  the products span more than one type) and a two-column grid of
+  `search-result-card` rows.
+
+  All products are rendered as cards so the tabs can filter them on the
+  client; the overlay script shows the first few that match the active tab.
+
+  @param {product[]} products - The products to list
+  @param {string} eyebrow - Small uppercase label above the heading
+  @param {string} heading - Display heading, e.g. the result count
+  @param {string} [subheading] - Muted text after the heading
+  @param {string} [terms] - Search terms to highlight in product titles
+  @param {string} [empty_message] - Shown when there are no products
+  @param {number} [limit] - Maximum number of cards to render, defaults to 12
+
+  @example
+  {% render 'search-results-panel', products: products, eyebrow: 'Products', heading: '12 results', terms: search.terms %}
+{% enddoc %}
+
+{%- liquid
+  assign limit = limit | default: 12
+  assign types = products | map: 'type' | compact | uniq
+-%}
+
+<div class="search-panel">
+  <div class="search-panel__header">
+    <div class="search-panel__title-group">
+      <p class="search-panel__eyebrow">{{ eyebrow }}</p>
+      <p class="search-panel__title">
+        <span class="search-panel__heading">{{ heading }}</span>
+        {%- if subheading != blank -%}
+          <span class="search-panel__subheading">{{ subheading }}</span>
+        {%- endif -%}
+      </p>
+    </div>
+
+    {%- if types.size > 1 -%}
+      <div class="search-panel__tabs" role="group" aria-label="{{ 'search_overlay.filter_by_type' | t }}">
+        <button type="button" class="search-panel__tab" data-type-tab="" aria-pressed="true">
+          {{ 'search_overlay.all' | t }}
+          <span class="search-panel__tab-count">{{ products.size }}</span>
+        </button>
+        {%- for type in types -%}
+          {%- assign type_count = products | where: 'type', type | size -%}
+          <button type="button" class="search-panel__tab" data-type-tab="{{ type | handleize }}" aria-pressed="false">
+            {{ type | escape }}
+            <span class="search-panel__tab-count">{{ type_count }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if products.size > 0 -%}
+    <div class="search-panel__grid" data-results-grid>
+      {%- for product in products limit: limit -%}
+        {%- render 'search-result-card', product: product, terms: terms -%}
+      {%- endfor -%}
+    </div>
+  {%- elsif empty_message != blank -%}
+    <p class="search-panel__empty">{{ empty_message }}</p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .search-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .search-panel__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .search-panel__title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .search-panel__eyebrow {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+
+  .search-panel__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 4px 10px;
+    margin: 0;
+  }
+
+  .search-panel__heading {
+    font-family: var(--font-heading--family);
+    font-size: 34px;
+    line-height: 34px;
+    text-transform: uppercase;
+  }
+
+  .search-panel__subheading {
+    color: var(--color-muted);
+    font-size: 17px;
+  }
+
+  .search-panel__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .search-panel__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-foreground);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .search-panel__tab-count {
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+
+  .search-panel__tab[aria-pressed='true'] {
+    background: var(--color-foreground);
+    color: #fff;
+  }
+
+  .search-panel__tab[aria-pressed='true'] .search-panel__tab-count {
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  .search-panel__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .search-panel__empty {
+    margin: 0;
+    padding: 32px;
+    border-radius: 18px;
+    background: var(--color-surface);
+    color: var(--color-muted);
+    font-size: 16px;
+  }
+
+  @media (max-width: 989px) {
+    .search-panel {
+      gap: 18px;
+    }
+
+    .search-panel__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .search-panel__heading {
+      font-size: 28px;
+      line-height: 28px;
+    }
+  }
+{% endstylesheet %}

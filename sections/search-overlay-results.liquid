@@ -1,0 +1,49 @@
+{% comment %}
+  Rendered only through the Section Rendering API on the search route
+  (`/search?q=…&type=product&section_id=search-overlay-results`) by the search
+  overlay, which swaps the `[data-results]` fragment into its results column.
+  Uses the full `search` object so the count and the type tabs reflect every
+  match, not just the handful of products shown.
+{% endcomment %}
+
+{%- if search.performed -%}
+  {%- paginate search.results by 50 -%}
+    {%- liquid
+      assign products = search.results | where: 'object_type', 'product'
+      assign eyebrow = 'search_overlay.products' | t
+      assign terms = search.terms | escape
+      assign heading = 'search_overlay.results' | t: count: search.results_count
+      assign subheading = 'search_overlay.for_terms' | t: terms: terms
+      assign empty_message = 'search_overlay.no_results' | t: terms: terms
+      capture view_all_url
+        echo routes.search_url
+        echo '?q='
+        echo search.terms | url_encode
+        echo '&type=product&options%5Bprefix%5D=last'
+      endcapture
+    -%}
+
+    <div
+      data-results
+      data-count="{{ search.results_count }}"
+      data-view-all-url="{{ view_all_url }}"
+      data-view-all-label="{{ 'search_overlay.view_all' | t: count: search.results_count | escape }}"
+    >
+      {%- render 'search-results-panel',
+        products: products,
+        eyebrow: eyebrow,
+        heading: heading,
+        subheading: subheading,
+        terms: search.terms,
+        empty_message: empty_message
+      -%}
+    </div>
+  {%- endpaginate -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:general.search_results",
+  "settings": []
+}
+{% endschema %}

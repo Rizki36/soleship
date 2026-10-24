@@ -1,0 +1,189 @@
+{% comment %}
+  Rendered only through the Predictive Search API by the search overlay
+  (sections/search-overlay.liquid), which swaps the `[data-suggestions]` and
+  `[data-collections]` fragments into its own layout.
+{% endcomment %}
+
+{%- if predictive_search.performed -%}
+  <div data-suggestions>
+    {%- comment -%}
+      Query suggestions depend on the store's search history, so until Shopify
+      has some, matching product titles stand in as completions.
+    {%- endcomment -%}
+    {%- if predictive_search.resources.queries.size == 0 -%}
+      {%- assign terms_downcased = predictive_search.terms | downcase | strip -%}
+      {%- for product in predictive_search.resources.products limit: 4 -%}
+        {%- liquid
+          assign suggestion = product.title | downcase
+          unless suggestion contains terms_downcased
+            continue
+          endunless
+          assign encoded_suggestion = suggestion | url_encode
+          assign suggestion_url = routes.search_url | append: '?type=product&options%5Bprefix%5D=last&q=' | append: encoded_suggestion
+        -%}
+        <div class="search-suggestion" data-search-option>
+          <a class="search-suggestion__link" href="{{ suggestion_url }}">
+            {% render 'icon', name: 'search', class: 'search-suggestion__icon' %}
+            <span class="search-suggestion__text">{{ suggestion | escape | highlight: predictive_search.terms }}</span>
+          </a>
+          <button
+            type="button"
+            class="search-suggestion__fill"
+            data-fill="{{ suggestion | escape }}"
+            aria-label="{{ 'search_overlay.fill' | t: terms: suggestion | escape }}"
+            tabindex="-1"
+          >
+            {% render 'icon', name: 'arrow-up-left' %}
+          </button>
+        </div>
+      {%- endfor -%}
+    {%- endif -%}
+
+    {%- for query in predictive_search.resources.queries -%}
+      <div class="search-suggestion" data-search-option data-query="{{ query.text | escape }}">
+        <a class="search-suggestion__link" href="{{ query.url }}">
+          {% render 'icon', name: 'search', class: 'search-suggestion__icon' %}
+          <span class="search-suggestion__text">{{ query.styled_text }}</span>
+        </a>
+        <button
+          type="button"
+          class="search-suggestion__fill"
+          data-fill="{{ query.text | escape }}"
+          aria-label="{{ 'search_overlay.fill' | t: terms: query.text | escape }}"
+          tabindex="-1"
+        >
+          {% render 'icon', name: 'arrow-up-left' %}
+        </button>
+      </div>
+    {%- endfor -%}
+  </div>
+
+  <div data-collections>
+    {%- for collection in predictive_search.resources.collections -%}
+      <a class="search-collection-pill" href="{{ collection.url }}">
+        <span class="search-collection-pill__title">{{ collection.title | escape }}</span>
+        <span class="search-collection-pill__count">
+          {{- 'search_overlay.items' | t: count: collection.products_count -}}
+        </span>
+        {% render 'icon', name: 'chevron-right' %}
+      </a>
+    {%- endfor -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .search-suggestion {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    transition: background-color 0.15s ease;
+  }
+
+  .search-suggestion:hover,
+  .search-suggestion.is-active {
+    background: var(--color-surface);
+  }
+
+  .search-suggestion__link {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 10px 0 10px 12px;
+    color: var(--color-foreground);
+    text-decoration: none;
+  }
+
+  .search-suggestion__icon {
+    width: 15px;
+    height: 15px;
+    color: var(--color-muted);
+  }
+
+  .search-suggestion:hover .search-suggestion__icon,
+  .search-suggestion.is-active .search-suggestion__icon {
+    color: var(--color-brand);
+  }
+
+  .search-suggestion__text {
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .search-suggestion__text mark,
+  .search-suggestion__text .highlight {
+    display: inline;
+    height: auto;
+    padding: 0;
+    border-radius: 0;
+    line-height: inherit;
+    background: none;
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+
+  .search-suggestion__fill {
+    display: inline-flex;
+    flex-shrink: 0;
+    padding: 10px 12px;
+    border: 0;
+    background: none;
+    color: var(--color-border);
+  }
+
+  .search-suggestion:hover .search-suggestion__fill,
+  .search-suggestion.is-active .search-suggestion__fill {
+    color: var(--color-brand);
+  }
+
+  .search-suggestion__fill .icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .search-collection-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px 8px 14px;
+    border-radius: 999px;
+    outline: 1px solid var(--color-border);
+    outline-offset: -0.5px;
+    color: var(--color-foreground);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: outline-color 0.15s ease;
+  }
+
+  .search-collection-pill:hover {
+    outline-color: var(--color-foreground);
+  }
+
+  .search-collection-pill__title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .search-collection-pill__count {
+    color: var(--color-muted);
+    font-size: 13px;
+  }
+
+  .search-collection-pill .icon {
+    width: 14px;
+    height: 14px;
+    color: var(--color-muted);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.predictive_search",
+  "settings": []
+}
+{% endschema %}
