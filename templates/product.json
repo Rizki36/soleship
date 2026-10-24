@@ -11,10 +11,203 @@
   "sections": {
     "main": {
       "type": "product",
-      "settings": {}
+      "blocks": {
+        "perk_shipping": {
+          "type": "perk",
+          "settings": {
+            "icon": "truck",
+            "title": "Free shipping",
+            "text": "On orders over Rp 2.000.000 · Arrives in 2–4 days"
+          }
+        },
+        "perk_returns": {
+          "type": "perk",
+          "settings": {
+            "icon": "refresh-ccw",
+            "title": "30-day trail-tested returns",
+            "text": "Wear them outside — still returnable"
+          }
+        },
+        "perk_warranty": {
+          "type": "perk",
+          "settings": {
+            "icon": "shield-check",
+            "title": "2-year sole warranty",
+            "text": "Covers outsole separation and stitching"
+          }
+        },
+        "details": {
+          "type": "collapsible",
+          "settings": {
+            "title": "Product details",
+            "source": "features",
+            "open": true
+          }
+        },
+        "materials": {
+          "type": "collapsible",
+          "settings": {
+            "title": "Materials & care",
+            "source": "custom",
+            "content": "<p>Waterproof microfibre upper with a seam-sealed membrane, dual-density EVA midsole and anti-slip rubber outsole.</p><p>Brush off dry dirt, wipe with a damp cloth and air dry away from direct heat. Do not machine wash.</p>",
+            "open": false
+          }
+        },
+        "shipping": {
+          "type": "collapsible",
+          "settings": {
+            "title": "Shipping & returns",
+            "source": "custom",
+            "content": "<p>Free shipping on orders over Rp 2.000.000, delivered in 2–4 business days.</p><p>Not the right fit? Return or exchange within 30 days — even if you've worn them outside.</p>",
+            "open": false
+          }
+        }
+      },
+      "block_order": [
+        "perk_shipping",
+        "perk_returns",
+        "perk_warranty",
+        "details",
+        "materials",
+        "shipping"
+      ],
+      "settings": {
+        "badge_tag": "best-seller",
+        "badge_label": "Best seller",
+        "hidden_tags": "best-seller, new",
+        "size_guide_page": "size-guide",
+        "show_dynamic_checkout": true
+      }
+    },
+    "specs": {
+      "type": "product-specs",
+      "blocks": {
+        "waterproof": {
+          "type": "spec",
+          "settings": {
+            "icon": "droplets",
+            "title": "Waterproof",
+            "text": "Seam-sealed membrane rated to 10,000mm."
+          }
+        },
+        "shock": {
+          "type": "spec",
+          "settings": {
+            "icon": "activity",
+            "title": "Shock-absorb",
+            "text": "Dual-density EVA midsole, 8mm drop."
+          }
+        },
+        "grip": {
+          "type": "spec",
+          "settings": {
+            "icon": "footprints",
+            "title": "Grip",
+            "text": "5mm multi-directional lugs for wet & dry."
+          }
+        },
+        "lightweight": {
+          "type": "spec",
+          "settings": {
+            "icon": "feather",
+            "title": "Lightweight",
+            "text": "Just 410g per shoe in a size 42."
+          }
+        }
+      },
+      "block_order": [
+        "waterproof",
+        "shock",
+        "grip",
+        "lightweight"
+      ],
+      "settings": {
+        "show_eyebrow": true,
+        "heading": "Engineered layer by layer",
+        "text": "Every component is chosen to survive concrete, gravel and rain — without the weight of a traditional boot.",
+        "background": "#5A1F22"
+      }
+    },
+    "reviews": {
+      "type": "product-reviews",
+      "blocks": {
+        "review_marcus": {
+          "type": "review",
+          "settings": {
+            "author": "Marcus T.",
+            "detail": "Verified buyer · 43",
+            "date": "Mar 12, 2026",
+            "rating": 5,
+            "headline": "Wore them on a 14-mile wet trail day",
+            "body": "Zero blisters, dry feet the whole way and they still look sharp enough for the office on Monday. Grip on slick rock is unreal."
+          }
+        },
+        "review_priya": {
+          "type": "review",
+          "settings": {
+            "author": "Priya S.",
+            "detail": "Verified buyer · 40",
+            "date": "Feb 28, 2026",
+            "rating": 5,
+            "headline": "Finally a boot that doesn't feel like a boot",
+            "body": "Light enough for my commute, tough enough for weekend hikes. The cushioning is the best I've had in a tactical shoe."
+          }
+        },
+        "review_daniel": {
+          "type": "review",
+          "settings": {
+            "author": "Daniel R.",
+            "detail": "Verified buyer · 44",
+            "date": "Feb 9, 2026",
+            "rating": 4,
+            "headline": "Great build, takes a few days to break in",
+            "body": "Super solid construction and the outsole is fantastic. Collar was a little stiff the first week, now they're perfect."
+          }
+        }
+      },
+      "block_order": [
+        "review_marcus",
+        "review_priya",
+        "review_daniel"
+      ],
+      "settings": {
+        "heading": "What wearers say",
+        "write_review_link": "/pages/contact",
+        "all_reviews_link": "",
+        "count_5": 113,
+        "count_4": 11,
+        "count_3": 2,
+        "count_2": 1,
+        "count_1": 1,
+        "fit_note": "87% say true to size",
+        "fit_position": 50
+      }
+    },
+    "related": {
+      "type": "related-products",
+      "settings": {
+        "heading": "You may also like",
+        "subheading": "Built on the same tactical platform.",
+        "products_to_show": 4,
+        "fallback_collection": "frontpage",
+        "background": "#F8F2F1"
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "Join the Soleship crew",
+        "text": "Get 10% off your first pair, early drops, and field-tested gear guides.",
+        "background": "#7E1B1F",
+        "padding_top": 112
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "specs",
+    "reviews",
+    "related",
+    "newsletter"
   ]
 }

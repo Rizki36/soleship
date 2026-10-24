@@ -70,7 +70,41 @@
     "price": "Price",
     "price_from": "From {{ price }}",
     "rating": "{{ rating }}/{{ max }}",
-    "quick_add": "Add {{ title }} to cart"
+    "quick_add": "Add {{ title }} to cart",
+    "unavailable": "Unavailable",
+    "add_to_cart_price": "Add to cart · {{ price }}",
+    "save_percent": "Save {{ percent }}%",
+    "rating_label": "Rated {{ rating }} out of {{ max }}",
+    "rating_count": "({{ count }} reviews)",
+    "option_label": "{{ name }}:",
+    "size_guide": "Size guide",
+    "inside_product": "Inside the {{ title }}",
+    "breadcrumb": {
+      "label": "Breadcrumb",
+      "home": "Home",
+      "shop": "Shop"
+    },
+    "gallery": {
+      "zoom": "Open full-size image",
+      "previous": "Previous image",
+      "next": "Next image",
+      "show_image": "Show image {{ index }}"
+    },
+    "quantity": {
+      "label": "Quantity",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity"
+    },
+    "reviews": {
+      "based_on": "Based on {{ count }} reviews",
+      "star_count": "{{ count }} star reviews:",
+      "write": "Write a review",
+      "show_all": "Show all {{ count }} reviews",
+      "fit_heading": "How it fits",
+      "runs_small": "Runs small",
+      "true_to_size": "True to size",
+      "runs_large": "Runs large"
+    }
   },
   "newsletter": {
     "email_label": "Email",

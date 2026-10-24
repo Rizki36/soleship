@@ -1,0 +1,146 @@
+{%- liquid
+  assign recommendations_url = routes.product_recommendations_url | append: '?section_id=' | append: section.id | append: '&product_id=' | append: product.id | append: '&limit=' | append: section.settings.products_to_show | append: '&intent=related'
+-%}
+
+<div class="related-products full-width" style="--section-bg: {{ section.settings.background }};">
+  <product-recommendations class="related-products__inner page-width" data-url="{{ recommendations_url }}">
+    {%- liquid
+      assign fallback_products = section.settings.fallback_collection.products
+      assign related_count = recommendations.products_count | plus: fallback_products.size
+    -%}
+    {%- if recommendations.performed? and related_count > 0 -%}
+      {% render 'product-carousel',
+        products: recommendations.products,
+        fallback_products: fallback_products,
+        exclude_id: product.id,
+        heading: section.settings.heading,
+        subheading: section.settings.subheading,
+        limit: section.settings.products_to_show,
+        class: 'related-products__carousel'
+      %}
+    {%- endif -%}
+  </product-recommendations>
+</div>
+
+{% stylesheet %}
+  .related-products {
+    background: var(--section-bg);
+  }
+
+  .related-products__inner {
+    display: block;
+    padding: 96px 0 112px;
+  }
+
+  .related-products__carousel {
+    --carousel-gap: 40px;
+    --carousel-title-size: clamp(2.25rem, 4vw, 3.25rem);
+  }
+
+  @media (max-width: 989px) {
+    .related-products__inner {
+      padding: 64px 0 72px;
+    }
+
+    .related-products__carousel {
+      --carousel-gap: 28px;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .related-products__carousel .product-carousel__arrows {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  if (!customElements.get('product-recommendations')) {
+    customElements.define(
+      'product-recommendations',
+      class ProductRecommendations extends HTMLElement {
+        connectedCallback() {
+          if (this.children.length) return;
+          this.observer = new IntersectionObserver(
+            (entries) => {
+              if (!entries[0].isIntersecting) return;
+              this.observer.disconnect();
+              this.load();
+            },
+            { rootMargin: '0px 0px 400px 0px' }
+          );
+          this.observer.observe(this);
+        }
+
+        disconnectedCallback() {
+          this.observer?.disconnect();
+        }
+
+        async load() {
+          try {
+            const response = await fetch(this.dataset.url);
+            const html = new DOMParser().parseFromString(await response.text(), 'text/html');
+            const loaded = html.querySelector('product-recommendations');
+            if (loaded && loaded.children.length) {
+              this.replaceChildren(...loaded.children);
+              return;
+            }
+          } catch (error) {
+            console.error(error);
+          }
+          this.closest('.related-products').hidden = true;
+        }
+      }
+    );
+  }
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:sections.related_products.name",
+  "class": "section-related-products",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:labels.heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:labels.subheading",
+      "default": "Built on the same tactical platform."
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "t:labels.products_to_show",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "collection",
+      "id": "fallback_collection",
+      "label": "t:labels.fallback_collection",
+      "info": "t:info.fallback_collection"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "t:labels.background",
+      "default": "#F8F2F1"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.related_products.name"
+    }
+  ]
+}
+{% endschema %}

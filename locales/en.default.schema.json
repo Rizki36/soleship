@@ -84,7 +84,34 @@
     "instagram": "Instagram",
     "facebook": "Facebook",
     "youtube": "YouTube",
-    "twitter": "X (Twitter)"
+    "twitter": "X (Twitter)",
+    "badge_tag": "Show badge for products tagged",
+    "detail_image_1": "Detail image 1",
+    "detail_image_2": "Detail image 2",
+    "hidden_tags": "Tags to hide",
+    "size_guide_page": "Size guide page",
+    "show_dynamic_checkout": "Show dynamic checkout buttons",
+    "content_source": "Content",
+    "content": "Custom content",
+    "open_by_default": "Open by default",
+    "show_product_eyebrow": "Show product name eyebrow",
+    "write_review_link": "Write a review link",
+    "all_reviews_link": "All reviews link",
+    "count_5": "5-star reviews",
+    "count_4": "4-star reviews",
+    "count_3": "3-star reviews",
+    "count_2": "2-star reviews",
+    "count_1": "1-star reviews",
+    "fit_note": "Fit summary",
+    "fit_position": "Fit marker position",
+    "author": "Author",
+    "review_detail": "Author detail",
+    "date": "Date",
+    "rating": "Rating",
+    "headline": "Headline",
+    "body": "Review",
+    "padding_top": "Top padding",
+    "fallback_collection": "Fallback collection"
   },
   "options": {
     "alignment": {
@@ -114,7 +141,17 @@
       "footprints": "Grip",
       "wind": "Breathable",
       "shield": "Protection",
-      "shield_check": "Tested"
+      "shield_check": "Tested",
+      "truck": "Shipping",
+      "returns": "Returns",
+      "badge_check": "Verified",
+      "ruler": "Sizing",
+      "droplets": "Waterproof",
+      "feather": "Lightweight"
+    },
+    "content_source": {
+      "features": "Product features from description",
+      "custom": "Custom content"
     }
   },
   "sections": {
@@ -138,23 +175,44 @@
     },
     "newsletter": {
       "name": "Newsletter"
+    },
+    "product_specs": {
+      "name": "Product tech specs"
+    },
+    "product_reviews": {
+      "name": "Product reviews"
+    },
+    "related_products": {
+      "name": "Related products"
     }
   },
   "blocks": {
     "stat": "Stat",
     "feature": "Feature",
     "spec": "Spec",
-    "tab": "Collection tab"
+    "tab": "Collection tab",
+    "perk": "Perk",
+    "collapsible": "Collapsible row",
+    "review": "Review"
   },
   "headers": {
     "featured_product": "Featured product",
     "carousel": "Product carousel",
     "menus": "Menus",
-    "social": "Social media"
+    "social": "Social media",
+    "gallery": "Gallery",
+    "product_info": "Product information",
+    "rating_distribution": "Rating breakdown",
+    "fit": "Fit"
   },
   "info": {
     "transparent_image": "Use a transparent PNG or WebP. Defaults to the product image.",
     "all_collection": "Defaults to all products.",
-    "tab_label": "Defaults to the collection title."
+    "tab_label": "Defaults to the collection title.",
+    "badge_tag": "The badge shows on the main image when a product has this tag.",
+    "hidden_tags": "Comma-separated tags left out of the tag line under the title.",
+    "rating_distribution": "Review counts per star level. The breakdown hides when every count is 0.",
+    "fit_note": "Leave blank to hide the fit meter.",
+    "fallback_collection": "Fills the row when Shopify returns fewer recommendations than the number of products to show."
   }
 }

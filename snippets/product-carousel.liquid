@@ -1,0 +1,216 @@
+{% doc %}
+  Renders a horizontally scrolling row of product cards with a heading and
+  previous/next arrow buttons.
+
+  Spacing and title size come from CSS custom properties, so the caller sets
+  `--carousel-gap`, `--carousel-header-offset` and `--carousel-title-size`
+  on the class it passes in.
+
+  When `products` is shorter than `limit`, the row is topped up from
+  `fallback_products`. Duplicates across both lists are skipped.
+
+  @param {product[]} products - The products to show
+  @param {product[]} [fallback_products] - Products used to fill the remaining slots
+  @param {string} heading - The row heading
+  @param {string} [subheading] - Optional text under the heading
+  @param {number} [limit] - Maximum number of products, defaults to 8
+  @param {number} [exclude_id] - A product ID to leave out, such as the current product
+  @param {string} [class] - Extra classes for the wrapper
+
+  @example
+  {% render 'product-carousel', products: collection.products, heading: section.settings.heading, limit: 4 %}
+{% enddoc %}
+
+{%- assign limit = limit | default: 8 -%}
+
+<product-carousel class="product-carousel {{ class }}">
+  <div class="product-carousel__header">
+    <div class="product-carousel__heading">
+      {%- if heading != blank -%}
+        <h2 class="product-carousel__title heading-display">{{ heading | escape }}</h2>
+      {%- endif -%}
+      {%- if subheading != blank -%}
+        <p class="product-carousel__subtitle">{{ subheading | escape }}</p>
+      {%- endif -%}
+    </div>
+    <div class="product-carousel__arrows">
+      <button type="button" class="product-carousel__arrow" data-direction="-1" aria-label="{{ 'general.previous' | t }}">
+        {% render 'icon', name: 'arrow-left' %}
+      </button>
+      <button
+        type="button"
+        class="product-carousel__arrow product-carousel__arrow--next"
+        data-direction="1"
+        aria-label="{{ 'general.next' | t }}"
+      >
+        {% render 'icon', name: 'arrow-right' %}
+      </button>
+    </div>
+  </div>
+
+  <ul class="product-carousel__track" role="list" data-track>
+    {%- liquid
+      assign shown_count = 0
+      assign shown_ids = ','
+      assign sources = 'products,fallback_products' | split: ','
+    -%}
+    {%- for source in sources -%}
+      {%- liquid
+        if source == 'products'
+          assign source_products = products
+        else
+          assign source_products = fallback_products
+        endif
+      -%}
+      {%- for product in source_products -%}
+        {%- liquid
+          if shown_count >= limit
+            break
+          endif
+          assign product_key = ',' | append: product.id | append: ','
+          if shown_ids contains product_key or product.id == exclude_id
+            continue
+          endif
+          assign shown_ids = shown_ids | append: product.id | append: ','
+          assign shown_count = shown_count | plus: 1
+        -%}
+        <li class="product-carousel__slide">
+          {% render 'product-card', product: product %}
+        </li>
+      {%- endfor -%}
+    {%- endfor -%}
+  </ul>
+</product-carousel>
+
+{% stylesheet %}
+  .product-carousel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--carousel-gap, 24px);
+  }
+
+  .product-carousel__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: var(--carousel-header-offset, 0);
+  }
+
+  .product-carousel__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .product-carousel__title {
+    margin: 0;
+    font-size: var(--carousel-title-size, clamp(1.75rem, 3vw, 2.125rem));
+  }
+
+  .product-carousel__subtitle {
+    margin: 0;
+    font-size: 17px;
+    color: var(--color-muted);
+  }
+
+  .product-carousel__arrows {
+    display: flex;
+    gap: 10px;
+  }
+
+  .product-carousel__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--color-foreground);
+  }
+
+  .product-carousel__arrow--next {
+    border-color: var(--color-foreground);
+    background: var(--color-foreground);
+    color: #fff;
+  }
+
+  .product-carousel__arrow[disabled] {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .product-carousel__arrow .icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .product-carousel__track {
+    display: flex;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .product-carousel__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .product-carousel__slide {
+    flex: 0 0 calc((100% - 72px) / 4);
+    scroll-snap-align: start;
+  }
+
+  @media (max-width: 989px) {
+    .product-carousel__slide {
+      flex-basis: calc((100% - 24px) / 2.3);
+    }
+  }
+
+  @media (max-width: 599px) {
+    .product-carousel__slide {
+      flex-basis: 72%;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  if (!customElements.get('product-carousel')) {
+    customElements.define(
+      'product-carousel',
+      class ProductCarousel extends HTMLElement {
+        connectedCallback() {
+          this.track = this.querySelector('[data-track]');
+          this.buttons = this.querySelectorAll('[data-direction]');
+          this.buttons.forEach((button) =>
+            button.addEventListener('click', () => this.scrollByCard(Number(button.dataset.direction)))
+          );
+          this.track.addEventListener('scroll', () => this.updateButtons(), { passive: true });
+          this.updateButtons();
+        }
+
+        scrollByCard(direction) {
+          const slide = this.track.firstElementChild;
+          if (!slide) return;
+          const gap = parseFloat(getComputedStyle(this.track).columnGap) || 0;
+          this.track.scrollBy({ left: direction * (slide.offsetWidth + gap), behavior: 'smooth' });
+        }
+
+        updateButtons() {
+          const maxScroll = this.track.scrollWidth - this.track.clientWidth - 1;
+          this.buttons.forEach((button) => {
+            const direction = Number(button.dataset.direction);
+            button.disabled = direction < 0 ? this.track.scrollLeft <= 0 : this.track.scrollLeft >= maxScroll;
+          });
+        }
+      }
+    );
+  }
+{% endjavascript %}

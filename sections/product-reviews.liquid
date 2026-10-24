@@ -1,0 +1,542 @@
+{%- liquid
+  assign rating = product.metafields.reviews.rating.value
+  assign rating_count = product.metafields.reviews.rating_count.value | default: 0
+  assign star_levels = '5,4,3,2,1' | split: ','
+  assign distribution_total = 0
+  for level in star_levels
+    assign count_key = 'count_' | append: level
+    assign distribution_total = distribution_total | plus: section.settings[count_key]
+  endfor
+-%}
+
+{%- if rating or section.blocks.size > 0 -%}
+  <div class="product-reviews">
+    <div class="product-reviews__summary">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="product-reviews__title heading-display">{{ section.settings.heading | escape }}</h2>
+      {%- endif -%}
+
+      {%- if rating -%}
+        {%- assign rating_max = rating.scale_max | round -%}
+        <div class="product-reviews__score">
+          <p class="product-reviews__value heading-display" aria-hidden="true">{{ rating.rating }}</p>
+          <div class="product-reviews__meta">
+            {% render 'rating-stars', rating: rating.rating, max: rating.scale_max %}
+            <p>
+              <span class="visually-hidden">{{ 'products.rating_label' | t: rating: rating.rating, max: rating_max }}</span>
+              {{ 'products.reviews.based_on' | t: count: rating_count }}
+            </p>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if distribution_total > 0 -%}
+        <ul class="product-reviews__distribution" role="list">
+          {%- for level in star_levels -%}
+            {%- liquid
+              assign count_key = 'count_' | append: level
+              assign level_count = section.settings[count_key]
+              assign level_width = level_count | times: 100.0 | divided_by: distribution_total
+            -%}
+            <li class="product-reviews__bar{% if forloop.index > 2 %} product-reviews__bar--low{% endif %}">
+              <span class="product-reviews__level" aria-hidden="true">{{ level }}</span>
+              <span class="product-reviews__track" aria-hidden="true">
+                <span style="width: {{ level_width }}%;"></span>
+              </span>
+              <span class="product-reviews__count">
+                <span class="visually-hidden">{{ 'products.reviews.star_count' | t: count: level }}</span>
+                {{ level_count }}
+              </span>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {%- if section.settings.write_review_link != blank -%}
+        {%- assign write_label = 'products.reviews.write' | t -%}
+        {% render 'button',
+          label: write_label,
+          url: section.settings.write_review_link,
+          class: 'product-reviews__write'
+        %}
+      {%- endif -%}
+    </div>
+
+    <div class="product-reviews__list">
+      {%- if section.settings.fit_note != blank -%}
+        <div class="product-reviews__fit">
+          <div class="product-reviews__fit-header">
+            <h3>{{ 'products.reviews.fit_heading' | t }}</h3>
+            <p>{{ section.settings.fit_note | escape }}</p>
+          </div>
+          <div class="product-reviews__fit-track" aria-hidden="true">
+            <span style="left: {{ section.settings.fit_position }}%;"></span>
+          </div>
+          <div class="product-reviews__fit-labels" aria-hidden="true">
+            <span>{{ 'products.reviews.runs_small' | t }}</span>
+            <span>{{ 'products.reviews.true_to_size' | t }}</span>
+            <span>{{ 'products.reviews.runs_large' | t }}</span>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when '@app' -%}
+            {% render block %}
+          {%- when 'review' -%}
+            <article class="product-reviews__review" {{ block.shopify_attributes }}>
+              <header class="product-reviews__review-header">
+                <div class="product-reviews__author">
+                  <span class="product-reviews__avatar" aria-hidden="true">
+                    {{- block.settings.author | slice: 0 | upcase -}}
+                  </span>
+                  <div>
+                    <p class="product-reviews__name">{{ block.settings.author | escape }}</p>
+                    {%- if block.settings.detail != blank -%}
+                      <p class="product-reviews__detail">
+                        {%- render 'icon', name: 'badge-check' -%}
+                        {{ block.settings.detail | escape }}
+                      </p>
+                    {%- endif -%}
+                  </div>
+                </div>
+                {%- if block.settings.date != blank -%}
+                  <p class="product-reviews__date">{{ block.settings.date | escape }}</p>
+                {%- endif -%}
+              </header>
+
+              {% render 'rating-stars', rating: block.settings.rating %}
+              <span class="visually-hidden">{{ 'products.rating_label' | t: rating: block.settings.rating, max: 5 }}</span>
+
+              {%- if block.settings.headline != blank -%}
+                <h3 class="product-reviews__headline">{{ block.settings.headline | escape }}</h3>
+              {%- endif -%}
+              {%- if block.settings.body != blank -%}
+                <p class="product-reviews__body">{{ block.settings.body | escape }}</p>
+              {%- endif -%}
+            </article>
+        {%- endcase -%}
+      {%- endfor -%}
+
+      {%- if section.settings.all_reviews_link != blank -%}
+        <a class="product-reviews__all" href="{{ section.settings.all_reviews_link }}">
+          {{ 'products.reviews.show_all' | t: count: rating_count }}
+          {%- render 'icon', name: 'arrow-right' -%}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .product-reviews {
+    display: grid;
+    grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+    align-items: start;
+    gap: 80px;
+    padding: 112px 0;
+  }
+
+  .product-reviews__summary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .product-reviews__title {
+    margin: 0;
+    font-size: clamp(2.5rem, 4vw, 3.25rem);
+  }
+
+  .product-reviews__score {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .product-reviews__value {
+    margin: 0;
+    font-size: 72px;
+    line-height: 1;
+  }
+
+  .product-reviews__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--color-muted);
+  }
+
+  .product-reviews__meta p {
+    margin: 0;
+  }
+
+  .product-reviews__distribution {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .product-reviews__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+  }
+
+  .product-reviews__level {
+    width: 10px;
+    font-weight: 600;
+  }
+
+  .product-reviews__track {
+    flex: 1 1 auto;
+    height: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-surface);
+  }
+
+  .product-reviews__track span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--color-accent);
+  }
+
+  .product-reviews__bar--low .product-reviews__track span {
+    background: #c9bdbc;
+  }
+
+  .product-reviews__count {
+    width: 44px;
+    color: var(--color-muted);
+  }
+
+  .product-reviews__write {
+    --button-bg: transparent;
+    --button-fg: var(--color-foreground);
+    padding: 16px 28px;
+    font-size: 15px;
+    outline: 1px solid var(--color-foreground);
+    outline-offset: -1px;
+  }
+
+  .product-reviews__list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .product-reviews__list > * {
+    width: 100%;
+  }
+
+  .product-reviews__fit {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .product-reviews__fit-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .product-reviews__fit-header h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .product-reviews__fit-header p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-muted);
+  }
+
+  .product-reviews__fit-track {
+    position: relative;
+    height: 6px;
+    margin: 5px 0;
+    border-radius: 999px;
+    background: var(--color-surface);
+  }
+
+  .product-reviews__fit-track span {
+    position: absolute;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-foreground);
+    transform: translate(-50%, -50%);
+  }
+
+  .product-reviews__fit-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+
+  .product-reviews__review {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .product-reviews__review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .product-reviews__author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .product-reviews__avatar {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-brand);
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .product-reviews__name {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .product-reviews__detail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+
+  .product-reviews__detail .icon {
+    width: 14px;
+    height: 14px;
+    color: #2f8f5b;
+  }
+
+  .product-reviews__date {
+    margin: 0;
+    font-size: 13px;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+
+  .product-reviews__review .rating-stars {
+    --star-size: 14px;
+  }
+
+  .product-reviews__headline {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .product-reviews__body {
+    margin: 0;
+    font-size: 16px;
+    line-height: 25px;
+    color: var(--color-muted);
+  }
+
+  .product-reviews__all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    padding-top: 28px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .product-reviews__all:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 989px) {
+    .product-reviews {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 48px;
+      padding: 72px 0;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .product-reviews__review-header {
+      align-items: flex-start;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.product_reviews.name",
+  "class": "section-product-reviews",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:labels.heading",
+      "default": "What wearers say"
+    },
+    {
+      "type": "url",
+      "id": "write_review_link",
+      "label": "t:labels.write_review_link"
+    },
+    {
+      "type": "url",
+      "id": "all_reviews_link",
+      "label": "t:labels.all_reviews_link"
+    },
+    {
+      "type": "header",
+      "content": "t:headers.rating_distribution",
+      "info": "t:info.rating_distribution"
+    },
+    {
+      "type": "number",
+      "id": "count_5",
+      "label": "t:labels.count_5",
+      "default": 0
+    },
+    {
+      "type": "number",
+      "id": "count_4",
+      "label": "t:labels.count_4",
+      "default": 0
+    },
+    {
+      "type": "number",
+      "id": "count_3",
+      "label": "t:labels.count_3",
+      "default": 0
+    },
+    {
+      "type": "number",
+      "id": "count_2",
+      "label": "t:labels.count_2",
+      "default": 0
+    },
+    {
+      "type": "number",
+      "id": "count_1",
+      "label": "t:labels.count_1",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:headers.fit"
+    },
+    {
+      "type": "text",
+      "id": "fit_note",
+      "label": "t:labels.fit_note",
+      "info": "t:info.fit_note",
+      "default": "87% say true to size"
+    },
+    {
+      "type": "range",
+      "id": "fit_position",
+      "label": "t:labels.fit_position",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "review",
+      "name": "t:blocks.review",
+      "settings": [
+        {
+          "type": "text",
+          "id": "author",
+          "label": "t:labels.author",
+          "default": "Marcus T."
+        },
+        {
+          "type": "text",
+          "id": "detail",
+          "label": "t:labels.review_detail",
+          "default": "Verified buyer · 42"
+        },
+        {
+          "type": "text",
+          "id": "date",
+          "label": "t:labels.date",
+          "default": "Mar 12, 2026"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "t:labels.rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "text",
+          "id": "headline",
+          "label": "t:labels.headline",
+          "default": "Wore them on a 14-mile wet trail day"
+        },
+        {
+          "type": "textarea",
+          "id": "body",
+          "label": "t:labels.body",
+          "default": "Zero blisters, dry feet the whole way and they still look sharp enough for the office on Monday."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.product_reviews.name",
+      "blocks": [{ "type": "review" }]
+    }
+  ]
+}
+{% endschema %}

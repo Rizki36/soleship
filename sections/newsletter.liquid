@@ -1,4 +1,4 @@
-<div class="newsletter">
+<div class="newsletter" style="--padding-top: {{ section.settings.padding_top }}px;">
   <div class="newsletter__card" style="--card-bg: {{ section.settings.background }};">
     <div class="newsletter__copy">
       {%- if section.settings.heading != blank -%}
@@ -45,6 +45,7 @@
 
 {% stylesheet %}
   .newsletter {
+    padding-top: var(--padding-top);
     padding-bottom: 112px;
   }
 
@@ -129,6 +130,7 @@
 
   @media (max-width: 989px) {
     .newsletter {
+      padding-top: min(var(--padding-top), 64px);
       padding-bottom: 72px;
     }
 
@@ -171,6 +173,16 @@
       "id": "background",
       "label": "t:labels.background",
       "default": "#7E1B1F"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:labels.padding_top",
+      "min": 0,
+      "max": 160,
+      "step": 8,
+      "unit": "px",
+      "default": 0
     }
   ],
   "presets": [

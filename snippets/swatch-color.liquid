@@ -1,0 +1,30 @@
+{% doc %}
+  Outputs the CSS color for a color option value. Uses the value's native
+  swatch when one is set, otherwise falls back to the brand colors used for
+  the seeded catalog, and finally to the value's handle as a named color.
+
+  @param {product_option_value} value - The option value to resolve
+
+  @example
+  {%- capture swatch_color -%}{% render 'swatch-color', value: value %}{%- endcapture -%}
+{% enddoc %}
+
+{%- liquid
+  assign swatch_color = value.swatch.color
+  unless swatch_color
+    assign value_handle = value | handleize
+    case value_handle
+      when 'black'
+        assign swatch_color = '#151313'
+      when 'brown'
+        assign swatch_color = '#8A6A54'
+      when 'graphite'
+        assign swatch_color = '#3A3A3A'
+      when 'bone'
+        assign swatch_color = '#E8DCD8'
+      else
+        assign swatch_color = value_handle
+    endcase
+  endunless
+  echo swatch_color
+-%}

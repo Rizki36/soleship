@@ -1,0 +1,41 @@
+{% doc %}
+  Renders a row of five stars with the rating rounded to whole stars. The
+  row is hidden from assistive technology, so pair it with a text rating.
+
+  @param {number} rating - The rating value
+  @param {number} [max] - The top of the rating scale, defaults to 5
+  @param {string} [class] - Extra classes for the wrapper
+
+  @example
+  {% render 'rating-stars', rating: rating.rating, max: rating.scale_max, class: 'reviews__stars' %}
+{% enddoc %}
+
+{%- liquid
+  assign max = max | default: 5
+  assign filled = rating | times: 5.0 | divided_by: max | round
+-%}
+
+<span class="rating-stars {{ class }}" aria-hidden="true">
+  {%- for i in (1..5) -%}
+    <span class="rating-stars__star{% if i > filled %} rating-stars__star--empty{% endif %}">
+      {%- render 'icon', name: 'star' -%}
+    </span>
+  {%- endfor -%}
+</span>
+
+{% stylesheet %}
+  .rating-stars {
+    display: inline-flex;
+    gap: 2px;
+    color: var(--color-rating);
+    font-size: var(--star-size, 16px);
+  }
+
+  .rating-stars__star {
+    display: inline-flex;
+  }
+
+  .rating-stars__star--empty {
+    color: var(--color-border);
+  }
+{% endstylesheet %}
