@@ -28,7 +28,8 @@
     }
   },
   "collections": {
-    "title": "Collections"
+    "title": "Collections",
+    "empty": "No products in this collection yet."
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",
@@ -48,5 +49,33 @@
     "submit": "Search",
     "no_results_html": "No results found for {{ terms }}",
     "results_for_html": "{{ count }} results found for {{ terms }}"
+  },
+  "accessibility": {
+    "skip_to_content": "Skip to content"
+  },
+  "general": {
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "header": {
+    "menu": "Menu",
+    "search": "Search",
+    "account": "Account",
+    "cart": "Cart"
+  },
+  "products": {
+    "add_to_cart": "Add to cart",
+    "added_to_cart": "Added to cart",
+    "sold_out": "Sold out",
+    "price": "Price",
+    "price_from": "From {{ price }}",
+    "rating": "{{ rating }}/{{ max }}",
+    "quick_add": "Add {{ title }} to cart"
+  },
+  "newsletter": {
+    "email_label": "Email",
+    "email_placeholder": "Enter your email",
+    "subscribe": "Subscribe",
+    "success": "Thanks for subscribing! Check your inbox for your 10% code."
   }
 }

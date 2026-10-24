@@ -1,50 +1,264 @@
-<footer>
-  <div class="footer__copyright">
-    &copy;
-    {{ 'now' | date: '%Y' }}
-    {{ shop.name | link_to: routes.root_url }}, {{ powered_by_link }}
-  </div>
+{%- assign social_networks = 'instagram,facebook,youtube,twitter' | split: ',' -%}
 
-  <div class="footer__links">
-    {% for link in section.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
-  </div>
+<footer class="site-footer full-width">
+  <div class="site-footer__inner page-width">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <a class="site-footer__logo" href="{{ routes.root_url }}">{{ shop.name | upcase | escape }}</a>
+        {%- if section.settings.tagline != blank -%}
+          <p class="site-footer__tagline">{{ section.settings.tagline | escape }}</p>
+        {%- endif -%}
 
-  <div class="footer__payment">
-    {% if section.settings.show_payment_icons %}
-      {% for type in shop.enabled_payment_types %}
-        {{ type | payment_type_svg_tag }}
-      {% endfor %}
-    {% endif %}
+        <ul class="site-footer__social" role="list">
+          {%- for network in social_networks -%}
+            {%- assign setting_id = 'social_' | append: network -%}
+            {%- assign social_url = section.settings[setting_id] -%}
+            {%- if social_url != blank -%}
+              <li>
+                <a href="{{ social_url }}" target="_blank" rel="noopener" aria-label="{{ network | capitalize }}">
+                  {% render 'icon', name: network %}
+                </a>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+
+      {%- for menu_index in (1..3) -%}
+        {%- assign setting_id = 'menu_' | append: menu_index -%}
+        {%- assign menu = section.settings[setting_id] -%}
+        {%- if menu != blank and menu.links.size > 0 -%}
+          <nav class="site-footer__menu" aria-label="{{ menu.title | escape }}">
+            <h2 class="site-footer__menu-title">{{ menu.title | escape }}</h2>
+            <ul role="list">
+              {%- for link in menu.links -%}
+                <li><a href="{{ link.url }}">{{ link.title | escape }}</a></li>
+              {%- endfor -%}
+            </ul>
+          </nav>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="site-footer__bottom">
+      <p class="site-footer__copyright">
+        &copy; {{ 'now' | date: '%Y' }}
+        {{ shop.name | link_to: routes.root_url }}. {{ powered_by_link }}
+      </p>
+
+      {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
+        <ul class="site-footer__payments" role="list">
+          {%- for type in shop.enabled_payment_types -%}
+            <li>{{ type | payment_type_svg_tag: class: 'site-footer__payment-icon' }}</li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
   </div>
 </footer>
 
 {% stylesheet %}
-  footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
+  .site-footer {
+    background: var(--color-foreground);
+    color: #dcd4d4;
   }
-  footer a {
+
+  .site-footer__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+    padding: 80px 0 40px;
+  }
+
+  .site-footer a {
+    color: inherit;
     text-decoration: none;
-    color: var(--color-foreground);
   }
-  footer .footer__links,
-  footer .footer__payment {
+
+  .site-footer a:hover {
+    color: #fff;
+  }
+
+  .site-footer__top {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 48px;
+  }
+
+  .site-footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1 1 320px;
+  }
+
+  .site-footer .site-footer__logo {
+    font-family: var(--font-heading--family);
+    font-size: 40px;
+    letter-spacing: 1.5px;
+    color: #fff;
+  }
+
+  .site-footer__tagline {
+    max-width: 320px;
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.53;
+    color: #a79e9e;
+  }
+
+  .site-footer__social {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgb(255 255 255 / 0.2);
+    border-radius: 999px;
+    color: #fff;
+    transition: background-color 0.2s ease;
+  }
+
+  .site-footer__social a:hover {
+    background: rgb(255 255 255 / 0.1);
+  }
+
+  .site-footer__social .icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .site-footer__menu {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 0 1 200px;
+  }
+
+  .site-footer__menu-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ff8a8f;
+  }
+
+  .site-footer__menu ul {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 15px;
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 28px;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+  }
+
+  .site-footer__copyright {
+    margin: 0;
+    font-size: 14px;
+    color: #8e8585;
+  }
+
+  .site-footer__payments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__payment-icon {
+    width: 38px;
+    height: 24px;
+  }
+
+  @media (max-width: 599px) {
+    .site-footer__inner {
+      gap: 48px;
+      padding-top: 56px;
+    }
+
+    .site-footer__menu {
+      flex-basis: calc(50% - 24px);
+    }
   }
 {% endstylesheet %}
 
 {% schema %}
 {
   "name": "t:general.footer",
+  "enabled_on": {
+    "groups": ["footer"]
+  },
   "settings": [
     {
+      "type": "textarea",
+      "id": "tagline",
+      "label": "t:labels.tagline",
+      "default": "Rugged tactical sneakers for every terrain. Designed for the city, proven on the trail."
+    },
+    {
+      "type": "header",
+      "content": "t:headers.menus"
+    },
+    {
       "type": "link_list",
-      "id": "menu",
+      "id": "menu_1",
       "label": "t:labels.menu"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_2",
+      "label": "t:labels.menu"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_3",
+      "label": "t:labels.menu"
+    },
+    {
+      "type": "header",
+      "content": "t:headers.social"
+    },
+    {
+      "type": "url",
+      "id": "social_instagram",
+      "label": "t:labels.instagram"
+    },
+    {
+      "type": "url",
+      "id": "social_facebook",
+      "label": "t:labels.facebook"
+    },
+    {
+      "type": "url",
+      "id": "social_youtube",
+      "label": "t:labels.youtube"
+    },
+    {
+      "type": "url",
+      "id": "social_twitter",
+      "label": "t:labels.twitter"
     },
     {
       "type": "checkbox",

@@ -1,0 +1,294 @@
+<div class="specs full-width" style="--section-bg: {{ section.settings.background }};">
+  <div class="specs__inner page-width">
+    <div class="specs__heading">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="specs__title heading-display heading-xl">{{ section.settings.heading | escape }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subheading != blank -%}
+        <p class="specs__subtitle">{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- assign sides = 'left,right' | split: ',' -%}
+    <div class="specs__layout">
+      {%- for side in sides -%}
+        <ul class="specs__column specs__column--{{ side }}" role="list">
+          {%- for block in section.blocks -%}
+            {%- if block.settings.side == side -%}
+              <li class="specs__item" {{ block.shopify_attributes }}>
+                <span class="specs__icon">{% render 'icon', name: block.settings.icon %}</span>
+                <h3 class="specs__item-title">{{ block.settings.title | escape }}</h3>
+                <p class="specs__item-text">{{ block.settings.text | escape }}</p>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+
+        {%- if forloop.first -%}
+          <div class="specs__disc">
+            {%- if section.settings.image -%}
+              {{
+                section.settings.image
+                | image_url: width: 1000
+                | image_tag:
+                  widths: '400, 600, 800, 1000',
+                  sizes: '(min-width: 990px) 480px, 80vw',
+                  class: 'specs__image'
+              }}
+            {%- else -%}
+              {{ 'product-2' | placeholder_svg_tag: 'specs__image specs__image--placeholder' }}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    {%- if section.settings.button_label != blank -%}
+      {% render 'button',
+        label: section.settings.button_label,
+        url: section.settings.button_link,
+        style: 'arrow',
+        class: 'button--light'
+      %}
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .specs {
+    background: var(--section-bg);
+    color: #fff;
+  }
+
+  .specs__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 64px;
+    padding: 112px 0;
+  }
+
+  .specs__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+  }
+
+  .specs__title {
+    margin: 0;
+  }
+
+  .specs__subtitle {
+    margin: 0;
+    font-size: 18px;
+    color: #e3c4c5;
+  }
+
+  .specs__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 480px) minmax(0, 1fr);
+    align-items: center;
+    gap: 56px;
+    width: 100%;
+  }
+
+  .specs__column {
+    display: flex;
+    flex-direction: column;
+    gap: 72px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .specs__item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .specs__column--left .specs__item {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .specs__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgb(255 255 255 / 0.18);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.08);
+    color: #ff8a8f;
+  }
+
+  .specs__icon .icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .specs__item-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .specs__item-text {
+    max-width: 260px;
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.53;
+    color: #d9b8b9;
+  }
+
+  .specs__disc {
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+
+  .specs__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 989px) {
+    .specs__inner {
+      gap: 48px;
+      padding: 72px 0;
+    }
+
+    .specs__layout {
+      grid-template-columns: 1fr 1fr;
+      gap: 40px 24px;
+    }
+
+    .specs__disc {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      width: min(100%, 360px);
+      margin-inline: auto;
+    }
+
+    .specs__column {
+      gap: 40px;
+    }
+
+    .specs__column--left .specs__item {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .specs__layout {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.engineered_specs.name",
+  "class": "section-engineered-specs",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:labels.heading",
+      "default": "Engineered for performance"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:labels.subheading",
+      "default": "Advanced materials and smart engineering for stability, comfort, and control."
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:labels.image"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:labels.button_label",
+      "default": "Learn more"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:labels.button_link"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "t:labels.background",
+      "default": "#5A1F22"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "spec",
+      "name": "t:blocks.spec",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "t:labels.icon",
+          "default": "activity",
+          "options": [
+            { "value": "activity", "label": "t:options.icon.activity" },
+            { "value": "footprints", "label": "t:options.icon.footprints" },
+            { "value": "wind", "label": "t:options.icon.wind" },
+            { "value": "shield", "label": "t:options.icon.shield" },
+            { "value": "shield-check", "label": "t:options.icon.shield_check" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.title",
+          "default": "Shock-absorb midsole"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "t:labels.text",
+          "default": "Reduces foot fatigue and impact stress on every stride."
+        },
+        {
+          "type": "select",
+          "id": "side",
+          "label": "t:labels.side",
+          "default": "left",
+          "options": [
+            { "value": "left", "label": "t:options.alignment.left" },
+            { "value": "right", "label": "t:options.alignment.right" }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.engineered_specs.name",
+      "blocks": [
+        { "type": "spec", "settings": { "icon": "activity", "title": "Shock-absorb midsole", "text": "Reduces foot fatigue and impact stress on every stride.", "side": "left" } },
+        { "type": "spec", "settings": { "icon": "footprints", "title": "Anti-slip rubber outsole", "text": "Maximum grip on wet, dry, or uneven ground.", "side": "left" } },
+        { "type": "spec", "settings": { "icon": "wind", "title": "Breathable tactical mesh", "text": "Keeps feet cool without sacrificing strength.", "side": "right" } },
+        { "type": "spec", "settings": { "icon": "shield", "title": "Reinforced toe & heel", "text": "Extra protection exactly where it matters most.", "side": "right" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

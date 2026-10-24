@@ -1,0 +1,37 @@
+{% doc %}
+  Renders a pill-shaped link button in one of the brand styles.
+
+  - `solid`: filled pill with a centered label
+  - `arrow`: outlined pill with a filled arrow circle before the label
+  - `hero`: filled pill with the label first and an arrow circle on the right
+
+  Colors are driven by CSS custom properties on the element, so the caller
+  passes a modifier class (`button--light`, `button--dark`) to adapt it to
+  its background.
+
+  @param {string} label - The button text
+  @param {string} [url] - Destination URL, defaults to the catalog
+  @param {string} [style] - One of solid, arrow, hero. Defaults to solid
+  @param {string} [class] - Extra classes for color variants
+
+  @example
+  {% render 'button', label: section.settings.button_label, url: section.settings.button_link, style: 'arrow', class: 'button--light' %}
+{% enddoc %}
+
+{%- liquid
+  assign style = style | default: 'solid'
+  assign url = url | default: routes.all_products_collection_url
+-%}
+
+<a class="button button--{{ style }} {{ class }}" href="{{ url }}">
+  {%- case style -%}
+    {%- when 'arrow' -%}
+      <span class="button__circle">{% render 'icon', name: 'arrow-right' %}</span>
+      <span>{{ label | escape }}</span>
+    {%- when 'hero' -%}
+      <span>{{ label | escape }}</span>
+      <span class="button__circle">{% render 'icon', name: 'arrow-up-right' %}</span>
+    {%- else -%}
+      <span>{{ label | escape }}</span>
+  {%- endcase -%}
+</a>

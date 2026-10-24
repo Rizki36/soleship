@@ -9,12 +9,224 @@
  */
 {
   "sections": {
-    "main": {
-      "type": "hello-world",
-      "settings": {}
+    "hero": {
+      "type": "hero",
+      "blocks": {
+        "stat_reviews": {
+          "type": "stat",
+          "settings": {
+            "value": "4.9/5",
+            "label": "12k+ reviews"
+          }
+        },
+        "stat_rebuy": {
+          "type": "stat",
+          "settings": {
+            "value": "98%",
+            "label": "Would rebuy"
+          }
+        },
+        "stat_warranty": {
+          "type": "stat",
+          "settings": {
+            "value": "2-yr",
+            "label": "Sole warranty"
+          }
+        }
+      },
+      "block_order": [
+        "stat_reviews",
+        "stat_rebuy",
+        "stat_warranty"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/soleship-hero.jpg",
+        "heading": "Rugged tactical\nsneakers for\nevery terrain",
+        "subheading": "Tactical sneakers engineered for durability, comfort, and modern urban style — from city pavement to mountain trail.",
+        "button_label": "Shop Now",
+        "button_link": "shopify://collections/all",
+        "secondary_label": "View Lookbook",
+        "secondary_link": "shopify://collections/new-arrivals",
+        "background": "#7E1B1F"
+      }
+    },
+    "best_sellers": {
+      "type": "best-sellers",
+      "settings": {
+        "watermark": "Best sellers",
+        "product": "urban-stealth",
+        "featured_image": "shopify://shop_images/soleship-featured-shoe.webp",
+        "tagline": "Daily Wear · Anti-Slip · Waterproof",
+        "row_heading": "More best sellers",
+        "collection": "best-sellers",
+        "products_to_show": 8,
+        "background": "#F8F2F1"
+      }
+    },
+    "why_tactical": {
+      "type": "why-tactical",
+      "blocks": {
+        "f1": {
+          "type": "feature",
+          "settings": {
+            "title": "Built for Impact",
+            "text": "Reinforced structure for rough terrain and daily wear."
+          }
+        },
+        "f2": {
+          "type": "feature",
+          "settings": {
+            "title": "All-Day Comfort",
+            "text": "Cushioned midsoles designed for long hours on your feet."
+          }
+        },
+        "f3": {
+          "type": "feature",
+          "settings": {
+            "title": "Superior Grip",
+            "text": "Slip-resistant outsole for maximum traction on any surface."
+          }
+        },
+        "f4": {
+          "type": "feature",
+          "settings": {
+            "title": "Weather Ready",
+            "text": "Breathable yet water-resistant materials that dry fast."
+          }
+        }
+      },
+      "block_order": [
+        "f1",
+        "f2",
+        "f3",
+        "f4"
+      ],
+      "settings": {
+        "eyebrow": "Built different",
+        "heading": "Why tactical sneakers?",
+        "button_label": "See More",
+        "button_link": "shopify://pages/about",
+        "image": "shopify://shop_images/soleship-why-tactical.jpg",
+        "badge": "Tested on 40+ terrains"
+      }
+    },
+    "specs": {
+      "type": "engineered-specs",
+      "blocks": {
+        "s1": {
+          "type": "spec",
+          "settings": {
+            "icon": "activity",
+            "title": "Shock-Absorb Midsole",
+            "text": "Reduces foot fatigue and impact stress on every stride.",
+            "side": "left"
+          }
+        },
+        "s2": {
+          "type": "spec",
+          "settings": {
+            "icon": "footprints",
+            "title": "Anti-Slip Rubber Outsole",
+            "text": "Maximum grip on wet, dry, or uneven ground.",
+            "side": "left"
+          }
+        },
+        "s3": {
+          "type": "spec",
+          "settings": {
+            "icon": "wind",
+            "title": "Breathable Tactical Mesh",
+            "text": "Keeps feet cool without sacrificing strength.",
+            "side": "right"
+          }
+        },
+        "s4": {
+          "type": "spec",
+          "settings": {
+            "icon": "shield",
+            "title": "Reinforced Toe & Heel",
+            "text": "Extra protection exactly where it matters most.",
+            "side": "right"
+          }
+        }
+      },
+      "block_order": [
+        "s1",
+        "s2",
+        "s3",
+        "s4"
+      ],
+      "settings": {
+        "heading": "Engineered for performance",
+        "subheading": "Advanced materials and smart engineering for stability, comfort, and control.",
+        "image": "shopify://shop_images/soleship-shoe-disc.jpg",
+        "button_label": "Learn More",
+        "button_link": "shopify://pages/about",
+        "background": "#5A1F22"
+      }
+    },
+    "collection_tabs": {
+      "type": "collection-tabs",
+      "blocks": {
+        "tab_1": {
+          "type": "tab",
+          "settings": {
+            "collection": "urban-tactical",
+            "label": "Urban Tactical"
+          }
+        },
+        "tab_2": {
+          "type": "tab",
+          "settings": {
+            "collection": "outdoor-hiking",
+            "label": "Outdoor & Hiking"
+          }
+        },
+        "tab_3": {
+          "type": "tab",
+          "settings": {
+            "collection": "work-duty",
+            "label": "Work & Duty"
+          }
+        },
+        "tab_4": {
+          "type": "tab",
+          "settings": {
+            "collection": "everyday-performance",
+            "label": "Everyday Performance"
+          }
+        }
+      },
+      "block_order": [
+        "tab_1",
+        "tab_2",
+        "tab_3",
+        "tab_4"
+      ],
+      "settings": {
+        "heading": "Our collection",
+        "subheading": "Find the right tactical sneaker for your mission, environment, and lifestyle.",
+        "all_label": "All",
+        "collection": "frontpage",
+        "products_to_show": 8,
+        "button_label": "View All Products"
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "Join the Soleship crew",
+        "text": "Get 10% off your first pair, early drops, and field-tested gear guides.",
+        "background": "#7E1B1F"
+      }
     }
   },
   "order": [
-    "main"
+    "hero",
+    "best_sellers",
+    "why_tactical",
+    "specs",
+    "collection_tabs",
+    "newsletter"
   ]
 }

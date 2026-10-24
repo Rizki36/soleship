@@ -73,9 +73,155 @@ p:empty {
 
 /** Theme styles below */
 body {
-  font-family: var(--font-primary--family);
+  font-family: var(--font-body--family);
   background-color: var(--color-background);
   color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  padding: 12px 16px;
+  background: var(--color-foreground);
+  color: var(--color-background);
+  transform: translateY(-100%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* Display headings use the condensed brand typeface in uppercase */
+.heading-display {
+  font-family: var(--font-heading--family);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.heading-xl {
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+/* The header group overlays the hero on the home page */
+.header-wrapper {
+  position: relative;
+  z-index: 20;
+}
+
+/** Pill buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button--solid {
+  padding: 16px 32px;
+  font-size: 16px;
+  background: var(--button-bg, var(--color-foreground));
+  color: var(--button-fg, #fff);
+}
+
+/* Outlined pill with a filled arrow circle on the left */
+.button--arrow {
+  padding: 6px 22px 6px 6px;
+  outline: 1px solid var(--button-outline, var(--color-foreground));
+  outline-offset: -1px;
+  background: transparent;
+  color: var(--button-fg, var(--color-foreground));
+}
+
+/* Filled pill with label first and arrow circle on the right */
+.button--hero {
+  gap: 18px;
+  padding: 6px 6px 6px 26px;
+  font-size: 16px;
+  background: var(--button-bg, #fff);
+  color: var(--button-fg, var(--color-foreground));
+}
+
+/* For buttons placed on dark backgrounds */
+.button--light {
+  --button-outline: rgb(255 255 255 / 0.4);
+  --button-fg: #fff;
+  --circle-bg: #fff;
+  --circle-fg: var(--color-foreground);
+}
+
+.button__circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--circle-size, 36px);
+  height: var(--circle-size, 36px);
+  border-radius: 999px;
+  background: var(--circle-bg, var(--color-foreground));
+  color: var(--circle-fg, #fff);
+}
+
+.button__circle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.button--hero .button__circle {
+  --circle-size: 40px;
+}
+
+.button--hero .button__circle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.icon {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
 }
 
 /** Section layout utilities */
@@ -114,4 +260,10 @@ body {
 /* Child elements that use the full-width utility class span the entire viewport. */
 .shopify-section > .full-width {
   grid-column: 1 / -1;
+}
+
+/* Constrains content inside a full-width section to the page column. */
+.page-width {
+  width: var(--content-width);
+  margin-inline: auto;
 }

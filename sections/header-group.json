@@ -11,12 +11,26 @@
   "type": "header",
   "name": "t:general.header",
   "sections": {
+    "announcement": {
+      "type": "announcement-bar",
+      "settings": {
+        "text": "Free shipping on orders over Rp 2.000.000 · 30-day trail-tested returns",
+        "show_icon": true,
+        "background": "#5A1F22",
+        "text_color": "#F3D9DA"
+      }
+    },
     "header": {
       "type": "header",
-      "settings": {}
+      "settings": {
+        "menu": "main-menu",
+        "transparent_on_home": true,
+        "background": "#7E1B1F"
+      }
     }
   },
   "order": [
+    "announcement",
     "header"
-  ],
+  ]
 }

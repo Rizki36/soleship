@@ -1,26 +1,11 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Skeleton",
+    "theme_name": "Soleship",
     "theme_version": "0.1.0",
-    "theme_author": "Shopify",
+    "theme_author": "Flatline Agency",
     "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
     "theme_support_url": "https://support.shopify.com/"
-  },
-  {
-    "name": "t:general.typography",
-    "settings": [
-      {
-        "type": "header",
-        "content": "t:general.fonts"
-      },
-      {
-        "type": "font_picker",
-        "id": "type_primary_font",
-        "default": "work_sans_n4",
-        "label": "t:general.primary"
-      },
-    ]
   },
   {
     "name": "t:general.layout",
@@ -49,7 +34,7 @@
         "step": 1,
         "unit": "px",
         "label": "t:labels.page_margin",
-        "default": 20
+        "default": 72
       }
     ]
   },
@@ -65,8 +50,44 @@
       {
         "type": "color",
         "id": "foreground_color",
-        "default": "#333333",
+        "default": "#151313",
         "label": "t:labels.foreground"
+      },
+      {
+        "type": "color",
+        "id": "accent_color",
+        "default": "#D7303B",
+        "label": "t:labels.accent"
+      },
+      {
+        "type": "color",
+        "id": "brand_color",
+        "default": "#7E1B1F",
+        "label": "t:labels.brand"
+      },
+      {
+        "type": "color",
+        "id": "brand_dark_color",
+        "default": "#5A1F22",
+        "label": "t:labels.brand_dark"
+      },
+      {
+        "type": "color",
+        "id": "surface_color",
+        "default": "#F8F2F1",
+        "label": "t:labels.surface"
+      },
+      {
+        "type": "color",
+        "id": "muted_color",
+        "default": "#6F6767",
+        "label": "t:labels.muted"
+      },
+      {
+        "type": "color",
+        "id": "border_color",
+        "default": "#E6DCDB",
+        "label": "t:labels.border"
       },
       {
         "type": "range",

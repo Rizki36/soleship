@@ -14,7 +14,14 @@
     "footer": {
       "type": "footer",
       "settings": {
-        "menu": "",
+        "tagline": "Rugged tactical sneakers for every terrain. Designed for the city, proven on the trail.",
+        "menu_1": "footer-shop",
+        "menu_2": "footer-support",
+        "menu_3": "footer-company",
+        "social_instagram": "https://instagram.com",
+        "social_facebook": "https://facebook.com",
+        "social_youtube": "https://youtube.com",
+        "social_twitter": "https://x.com",
         "show_payment_icons": true
       }
     }

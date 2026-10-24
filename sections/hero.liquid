@@ -1,0 +1,273 @@
+<div
+  class="hero full-width"
+  style="--hero-bg: {{ section.settings.background }};"
+>
+  <div class="hero__media">
+    {%- if section.settings.image -%}
+      {{
+        section.settings.image
+        | image_url: width: 2000
+        | image_tag:
+          loading: 'eager',
+          fetchpriority: 'high',
+          widths: '600, 900, 1200, 1600, 2000',
+          sizes: '(min-width: 990px) 66vw, 100vw',
+          class: 'hero__image'
+      }}
+    {%- else -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'hero__image hero__image--placeholder' }}
+    {%- endif -%}
+    <div class="hero__blend"></div>
+  </div>
+
+  <div class="hero__content page-width">
+    <div class="hero__copy">
+      {%- if section.settings.heading != blank -%}
+        <h1 class="hero__heading heading-display">{{ section.settings.heading | escape | newline_to_br }}</h1>
+      {%- endif -%}
+
+      {%- if section.settings.subheading != blank -%}
+        <p class="hero__subheading">{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+
+      <div class="hero__actions">
+        {%- if section.settings.button_label != blank -%}
+          {% render 'button',
+            label: section.settings.button_label,
+            url: section.settings.button_link,
+            style: 'hero'
+          %}
+        {%- endif -%}
+        {%- if section.settings.secondary_label != blank -%}
+          <a class="hero__secondary" href="{{ section.settings.secondary_link | default: routes.collections_url }}">
+            {{- section.settings.secondary_label | escape -}}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <dl class="hero__stats">
+        {%- for block in section.blocks -%}
+          <div class="hero__stat" {{ block.shopify_attributes }}>
+            <dt class="hero__stat-label">{{ block.settings.label | escape }}</dt>
+            <dd class="hero__stat-value">{{ block.settings.value | escape }}</dd>
+          </div>
+        {%- endfor -%}
+      </dl>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .hero {
+    position: relative;
+    display: flex;
+    min-height: 780px;
+    overflow: hidden;
+    background: var(--hero-bg);
+    color: #fff;
+  }
+
+  .hero__media {
+    position: absolute;
+    inset: 0 0 0 34.7%;
+  }
+
+  .hero__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Fades the photo into the solid background on the left edge */
+  .hero__blend {
+    position: absolute;
+    inset: 0 auto 0 -2px;
+    width: 49%;
+    background: linear-gradient(90deg, var(--hero-bg) 0%, rgb(from var(--hero-bg) r g b / 0.9) 30%, rgb(from var(--hero-bg) r g b / 0) 100%);
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 48px;
+    padding: 200px 0 64px;
+  }
+
+  .hero__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    max-width: 600px;
+  }
+
+  .hero__heading {
+    margin: 0;
+    font-size: clamp(3.25rem, 6.4vw, 5.75rem);
+    line-height: 1.02;
+  }
+
+  .hero__subheading {
+    max-width: 440px;
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.5;
+    color: #f4e3e3;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    padding-top: 12px;
+  }
+
+  .hero__secondary {
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .hero__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 48px;
+    margin: 0;
+  }
+
+  .hero__stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+  }
+
+  .hero__stat-value {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: 26px;
+  }
+
+  .hero__stat-label {
+    font-size: 13px;
+    color: #e9c9ca;
+  }
+
+  @media (max-width: 989px) {
+    .hero {
+      min-height: 0;
+    }
+
+    .hero__media {
+      inset: 0;
+    }
+
+    .hero__media::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgb(from var(--hero-bg) r g b / 0.55) 0%, rgb(from var(--hero-bg) r g b / 0.92) 100%);
+    }
+
+    .hero__blend {
+      display: none;
+    }
+
+    .hero__content {
+      padding: 140px 0 48px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.hero.name",
+  "class": "section-hero",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:labels.image"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "t:labels.heading",
+      "default": "Rugged tactical\nsneakers for\nevery terrain"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "t:labels.subheading",
+      "default": "Tactical sneakers engineered for durability, comfort, and modern urban style — from city pavement to mountain trail."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:labels.button_label",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:labels.button_link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_label",
+      "label": "t:labels.secondary_label",
+      "default": "View lookbook"
+    },
+    {
+      "type": "url",
+      "id": "secondary_link",
+      "label": "t:labels.secondary_link"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "t:labels.background",
+      "default": "#7E1B1F"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "t:blocks.stat",
+      "settings": [
+        {
+          "type": "text",
+          "id": "value",
+          "label": "t:labels.value",
+          "default": "4.9/5"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:labels.label",
+          "default": "12k+ reviews"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.hero.name",
+      "blocks": [
+        { "type": "stat", "settings": { "value": "4.9/5", "label": "12k+ reviews" } },
+        { "type": "stat", "settings": { "value": "98%", "label": "Would rebuy" } },
+        { "type": "stat", "settings": { "value": "2-yr", "label": "Sole warranty" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

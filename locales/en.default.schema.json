@@ -47,7 +47,44 @@
     "page_width": "Page width",
     "show_payment_icons": "Show payment icons",
     "text_style": "Text style",
-    "text": "Text"
+    "text": "Text",
+    "accent": "Accent",
+    "brand": "Brand",
+    "brand_dark": "Brand dark",
+    "surface": "Surface",
+    "muted": "Muted text",
+    "border": "Border",
+    "link": "Link",
+    "show_icon": "Show icon",
+    "text_color": "Text color",
+    "logo": "Logo image",
+    "transparent_on_home": "Transparent header on home page",
+    "image": "Image",
+    "heading": "Heading",
+    "subheading": "Subheading",
+    "button_label": "Button label",
+    "button_link": "Button link",
+    "secondary_label": "Secondary link label",
+    "secondary_link": "Secondary link",
+    "value": "Value",
+    "label": "Label",
+    "watermark": "Watermark text",
+    "product": "Product",
+    "featured_image": "Featured image",
+    "tagline": "Tagline",
+    "collection": "Collection",
+    "products_to_show": "Products to show",
+    "eyebrow": "Eyebrow",
+    "badge": "Image badge",
+    "title": "Title",
+    "icon": "Icon",
+    "side": "Side",
+    "all_label": "All tab label",
+    "all_collection": "All tab collection",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "youtube": "YouTube",
+    "twitter": "X (Twitter)"
   },
   "options": {
     "alignment": {
@@ -72,5 +109,52 @@
       "subtitle": "Subtitle",
       "normal": "Normal text"
     },
+    "icon": {
+      "activity": "Shock absorption",
+      "footprints": "Grip",
+      "wind": "Breathable",
+      "shield": "Protection",
+      "shield_check": "Tested"
+    }
+  },
+  "sections": {
+    "announcement_bar": {
+      "name": "Announcement bar"
+    },
+    "hero": {
+      "name": "Hero"
+    },
+    "best_sellers": {
+      "name": "Best sellers"
+    },
+    "why_tactical": {
+      "name": "Feature list with image"
+    },
+    "engineered_specs": {
+      "name": "Product specs"
+    },
+    "collection_tabs": {
+      "name": "Collection tabs"
+    },
+    "newsletter": {
+      "name": "Newsletter"
+    }
+  },
+  "blocks": {
+    "stat": "Stat",
+    "feature": "Feature",
+    "spec": "Spec",
+    "tab": "Collection tab"
+  },
+  "headers": {
+    "featured_product": "Featured product",
+    "carousel": "Product carousel",
+    "menus": "Menus",
+    "social": "Social media"
+  },
+  "info": {
+    "transparent_image": "Use a transparent PNG or WebP. Defaults to the product image.",
+    "all_collection": "Defaults to all products.",
+    "tab_label": "Defaults to the collection title."
   }
 }

@@ -1,18 +1,26 @@
-{% style %}
-  {% # Loads all font variantions with display: swap %}
-  {{ settings.type_primary_font | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+{% doc %}
+  Outputs the global CSS custom properties derived from theme settings.
 
+  @example
+  {% render 'css-variables' %}
+{% enddoc %}
+
+{% style %}
   :root {
-    --font-primary--family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
-    --font-primary--style: {{ settings.type_primary_font.style }};
-    --font-primary--weight: {{ settings.type_primary_font.weight }};
+    --font-heading--family: 'Anton', Impact, system-ui, sans-serif;
+    --font-body--family: 'Familjen Grotesk', system-ui, sans-serif;
+    --font-primary--family: var(--font-body--family);
     --page-width: {{ settings.max_page_width }};
-    --page-margin: {{ settings.min_page_margin }}px;
+    --page-margin: clamp(16px, 5vw, {{ settings.min_page_margin }}px);
     --color-background: {{ settings.background_color }};
     --color-foreground: {{ settings.foreground_color }};
+    --color-accent: {{ settings.accent_color }};
+    --color-brand: {{ settings.brand_color }};
+    --color-brand-dark: {{ settings.brand_dark_color }};
+    --color-surface: {{ settings.surface_color }};
+    --color-muted: {{ settings.muted_color }};
+    --color-border: {{ settings.border_color }};
+    --color-rating: #f2a516;
     --style-border-radius-inputs: {{ settings.input_corner_radius }}px;
   }
 {% endstyle %}
