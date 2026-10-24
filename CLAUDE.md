@@ -1,0 +1,1 @@
+/Users/shiro/Documents/GitHub/soleship/soleship/AGENTS.md
