@@ -11,10 +11,44 @@
   "sections": {
     "main": {
       "type": "cart",
-      "settings": {}
+      "blocks": {
+        "perk-returns": {
+          "type": "perk",
+          "settings": {
+            "icon": "rotate-ccw",
+            "title": "30-day trail-tested returns",
+            "text": "Wear them outside — still returnable"
+          }
+        },
+        "perk-warranty": {
+          "type": "perk",
+          "settings": {
+            "icon": "shield-check",
+            "title": "2-year sole warranty",
+            "text": "Covers delamination & lug wear"
+          }
+        }
+      },
+      "block_order": ["perk-returns", "perk-warranty"],
+      "settings": {
+        "eyebrow_suffix": "Ready to deploy",
+        "free_shipping_threshold": 1980000,
+        "delivery_estimate": "Arrives in 2–4 days",
+        "gift_wrap_product": "gift-wrap",
+        "hidden_tags": "best-seller, new, urban, outdoor, hiking, duty, everyday, trail",
+        "show_payment_icons": true
+      }
+    },
+    "complete-kit": {
+      "type": "related-products",
+      "settings": {
+        "heading": "Complete your kit",
+        "subheading": "Pairs well with what's already in your cart.",
+        "products_to_show": 4,
+        "fallback_collection": "frontpage",
+        "background": "#F8F2F1"
+      }
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["main", "complete-kit"]
 }

@@ -15,6 +15,7 @@
   @param {string} [subheading] - Optional text under the heading
   @param {number} [limit] - Maximum number of products, defaults to 8
   @param {number} [exclude_id] - A product ID to leave out, such as the current product
+  @param {string} [exclude_ids] - Comma-separated product IDs to leave out, such as products already in the cart
   @param {string} [class] - Extra classes for the wrapper
 
   @example
@@ -52,6 +53,9 @@
     {%- liquid
       assign shown_count = 0
       assign shown_ids = ','
+      if exclude_ids != blank
+        assign shown_ids = shown_ids | append: exclude_ids | append: ','
+      endif
       assign sources = 'products,fallback_products' | split: ','
     -%}
     {%- for source in sources -%}

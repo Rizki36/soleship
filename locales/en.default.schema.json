@@ -125,7 +125,10 @@
     "price_min": "Minimum price",
     "price_max": "Maximum price",
     "position": "Position in grid",
-    "popular_collection": "Popular collection"
+    "popular_collection": "Popular collection",
+    "free_shipping_threshold": "Free shipping threshold",
+    "delivery_estimate": "Delivery estimate",
+    "gift_wrap_product": "Gift wrap product"
   },
   "options": {
     "alignment": {
@@ -245,6 +248,9 @@
     "color_pairs": "Comma-separated Name:#hex pairs, for example Black:#151313.",
     "promo_position": "Shows on the first page before this product. Spans two columns.",
     "popular_collection": "Shown before the shopper types. Defaults to Best sellers.",
-    "trending_link": "Leave empty to search for the label"
+    "trending_link": "Leave empty to search for the label",
+    "free_shipping_threshold": "Cart subtotal, in store currency, that unlocks free shipping. Set to 0 to hide the progress bar.",
+    "gift_wrap_product": "Ticking the gift wrap box adds this product to the cart. Leave blank to hide the option.",
+    "cart_hidden_tags": "Comma-separated tags never shown as the pill above the product name."
   }
 }

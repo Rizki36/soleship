@@ -15,9 +15,66 @@
   },
   "cart": {
     "checkout": "Checkout",
-    "title": "Cart",
+    "title": "Your cart",
     "update": "Update",
-    "remove": "Remove"
+    "remove": "Remove",
+    "eyebrow": {
+      "one": "{{ count }} item",
+      "other": "{{ count }} items"
+    },
+    "regular_price": "Regular price",
+    "quantity": "Quantity",
+    "decrease": "Decrease quantity for {{ title }}",
+    "increase": "Increase quantity for {{ title }}",
+    "save_for_later": "Save for later",
+    "continue_shopping": "Continue shopping",
+    "gift_wrap": "Add gift wrap & note (+{{ price }})",
+    "gift_note": "Write a gift note (optional)",
+    "secure_checkout": "Secure checkout",
+    "error": "Something went wrong updating your cart. Please try again.",
+    "headings": {
+      "product": "Product",
+      "quantity": "Quantity",
+      "total": "Total"
+    },
+    "shipping": {
+      "unlocked": "You've unlocked free shipping",
+      "remaining": "Add {{ amount }} more for free shipping",
+      "progress": "Progress towards free shipping",
+      "hint": "Orders over {{ amount }} ship free"
+    },
+    "discount": {
+      "placeholder": "Discount code",
+      "apply": "Apply",
+      "remove": "Remove discount {{ code }}",
+      "invalid": "That code isn't valid for this cart.",
+      "percentage": "{{ code }} · {{ value }}% off"
+    },
+    "summary": {
+      "title": "Order summary",
+      "subtotal": {
+        "one": "Subtotal ({{ count }} item)",
+        "other": "Subtotal ({{ count }} items)"
+      },
+      "discount": "Discount ({{ title }})",
+      "shipping": "Shipping",
+      "free": "Free",
+      "calculated_at_checkout": "Calculated at checkout",
+      "tax": "Estimated tax",
+      "tax_included": "Included",
+      "total": "Total",
+      "saving": "You're saving {{ amount }}"
+    },
+    "empty": {
+      "text": "Your cart is empty. Find a pair built for your terrain.",
+      "button": "Shop all sneakers"
+    },
+    "saved": {
+      "title": "Saved for later",
+      "move_to_cart": "Move to cart",
+      "remove": "Remove"
+    },
+    "breadcrumb": "Cart"
   },
   "customers": {
     "login": {

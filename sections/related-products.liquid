@@ -1,25 +1,41 @@
 {%- liquid
-  assign recommendations_url = routes.product_recommendations_url | append: '?section_id=' | append: section.id | append: '&product_id=' | append: product.id | append: '&limit=' | append: section.settings.products_to_show | append: '&intent=related'
+  assign source_product_id = product.id | default: cart.items.first.product_id
+  assign fallback_products = section.settings.fallback_collection.products
+  assign cart_product_ids = cart.items | map: 'product_id' | uniq
+  assign recommendations_limit = section.settings.products_to_show | plus: cart_product_ids.size | at_most: 10
+  assign cart_product_ids = cart_product_ids | join: ','
+  assign recommendations_url = routes.product_recommendations_url | append: '?section_id=' | append: section.id | append: '&product_id=' | append: source_product_id | append: '&limit=' | append: recommendations_limit | append: '&intent=related'
 -%}
 
 <div class="related-products full-width" style="--section-bg: {{ section.settings.background }};">
-  <product-recommendations class="related-products__inner page-width" data-url="{{ recommendations_url }}">
-    {%- liquid
-      assign fallback_products = section.settings.fallback_collection.products
-      assign related_count = recommendations.products_count | plus: fallback_products.size
-    -%}
-    {%- if recommendations.performed? and related_count > 0 -%}
+  {%- if source_product_id -%}
+    <product-recommendations class="related-products__inner page-width" data-url="{{ recommendations_url }}">
+      {%- assign related_count = recommendations.products_count | plus: fallback_products.size -%}
+      {%- if recommendations.performed? and related_count > 0 -%}
+        {% render 'product-carousel',
+          products: recommendations.products,
+          fallback_products: fallback_products,
+          exclude_id: source_product_id,
+          exclude_ids: cart_product_ids,
+          heading: section.settings.heading,
+          subheading: section.settings.subheading,
+          limit: section.settings.products_to_show,
+          class: 'related-products__carousel'
+        %}
+      {%- endif -%}
+    </product-recommendations>
+  {%- elsif fallback_products.size > 0 -%}
+    <div class="related-products__inner page-width">
       {% render 'product-carousel',
-        products: recommendations.products,
-        fallback_products: fallback_products,
-        exclude_id: product.id,
+        products: fallback_products,
+        exclude_ids: cart_product_ids,
         heading: section.settings.heading,
         subheading: section.settings.subheading,
         limit: section.settings.products_to_show,
         class: 'related-products__carousel'
       %}
-    {%- endif -%}
-  </product-recommendations>
+    </div>
+  {%- endif -%}
 </div>
 
 {% stylesheet %}
@@ -100,7 +116,7 @@
   "name": "t:sections.related_products.name",
   "class": "section-related-products",
   "enabled_on": {
-    "templates": ["product"]
+    "templates": ["product", "cart"]
   },
   "settings": [
     {
